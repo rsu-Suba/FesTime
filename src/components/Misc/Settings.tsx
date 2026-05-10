@@ -30,7 +30,7 @@ export default function Settings() {
   const handleLogout = () => {
     localStorage.removeItem("admin_auth");
     setRole("user");
-    window.location.href = "/app";
+    window.location.href = "/FesTime";
   };
 
   const handleReset = () => {

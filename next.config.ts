@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 
-const SUB_DIRECTORY = "/app";
+const SUB_DIRECTORY = "/FesTime";
 const isProd = process.env.NODE_ENV === "production";
 
 const nextConfig: NextConfig = {

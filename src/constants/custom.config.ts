@@ -68,7 +68,7 @@ export const CUSTOM_CONFIG: EventConfig = {
   
   navigation: {
     homepageUrl: "",
-    basePath: "/app",
+    basePath: "/FesTime",
   },
   
   theme: {
