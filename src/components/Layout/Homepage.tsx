@@ -11,7 +11,7 @@ export default function Homepage() {
     <CardBase title="ホームページ">
       <CardInside>
         {hasLogo ? (
-          <a href={CUSTOM_CONFIG.navigation.homepageUrl} target="_blank" rel="noreferrer">
+          <a href={CUSTOM_CONFIG.navigation.homepageUrl || "#"} target="_blank" rel="noreferrer" style={{ pointerEvents: CUSTOM_CONFIG.navigation.homepageUrl ? "auto" : "none" }}>
             <img style={{ width: "60%" }} src={getPath(CUSTOM_CONFIG.theme.mainLogoPath)} alt="Logo" />
           </a>
         ) : (

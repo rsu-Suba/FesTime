@@ -256,10 +256,10 @@ export default function UserView() {
           <Menu />
           <div style={{
             position: "fixed",
-            bottom: "16px",
-            left: "16px",
+            bottom: "24px",
+            left: "24px",
             opacity: 0.5,
-            fontSize: "14px",
+            fontSize: "15px",
             color: "var(--text-color)",
             zIndex: 1000,
             pointerEvents: "none"
@@ -280,7 +280,7 @@ export default function UserView() {
                     textAlign: "center", 
                     padding: "20px 0 100px", 
                     opacity: 0.5, 
-                    fontSize: "11px",
+                    fontSize: "13px",
                     color: "var(--text-color)" 
                   }}>
                     Powered by <a href="https://github.com/rsu-Suba/FesTime" target="_blank" rel="noreferrer" style={{color: "inherit", textDecoration: "underline"}}>FesTime</a>

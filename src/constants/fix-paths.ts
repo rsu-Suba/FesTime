@@ -1,13 +1,20 @@
 import * as fs from "fs";
 import * as path from "path";
+import { CUSTOM_CONFIG } from "./custom.config";
 
 const docsDir = path.resolve(process.cwd(), "docs");
-const basePath = "";
+const basePath = CUSTOM_CONFIG.navigation.basePath || "";
+const cleanBaseName = basePath.startsWith("/") ? basePath.slice(1) : basePath;
 
 function walk(dir: string): void {
   if (!fs.existsSync(dir)) {
     console.warn(`Directory not found: ${dir}`);
     return;
+  }
+  
+  if (!basePath) {
+      console.log("basePath is empty in custom.config.ts, skipping path fix.");
+      return;
   }
 
   const entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -22,19 +29,18 @@ function walk(dir: string): void {
       let newContent = content;
 
       if (entry.name.endsWith(".html")) {
-        newContent = newContent.replace(/(src|href)="\/((?!app\/|https?|ftp)[^"]+)"/g, `$1="${basePath}/$2"`);
+        const regex = new RegExp(`(src|href)="\\/((?!${cleanBaseName}\\/|https?|ftp)[^"]+)"`, 'g');
+        newContent = newContent.replace(regex, `$1="${basePath}/$2"`);
       }
 
       if (/\.(js|json)$/.test(entry.name)) {
-        newContent = newContent.replace(
-          /(["'])\/(?!(?:app|https?|ftp)\/)([^"']+\.(?:png|jpg|jpeg|svg|gif|webp|json|js))(["'])/g,
-          `$1${basePath}/$2$3`,
-        );
+        const regex = new RegExp(`(["'])\\/(?!(?:${cleanBaseName}|https?|ftp)\\/)([^"']+\\.(?:png|jpg|jpeg|svg|gif|webp|json|js))(["'])`, 'g');
+        newContent = newContent.replace(regex, `$1${basePath}/$2$3`);
       }
 
       if (entry.name.endsWith(".css")) {
         newContent = newContent.replace(/url\(\s*["']?\/([^"'>)]+)["']?\s*\)/g, (match, p1) => {
-          if (p1.startsWith("app/") || p1.startsWith("/app/")) return match;
+          if (p1.startsWith(`${cleanBaseName}/`) || p1.startsWith(`/${cleanBaseName}/`)) return match;
           const cleanPath = p1.startsWith("/") ? p1.slice(1) : p1;
           return `url("${basePath}/${cleanPath}")`;
         });
@@ -51,3 +57,4 @@ function walk(dir: string): void {
 console.log(`Target directory: ${docsDir}`);
 walk(docsDir);
 console.log("Finished updating paths.");
+

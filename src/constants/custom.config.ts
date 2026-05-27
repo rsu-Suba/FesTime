@@ -40,7 +40,6 @@ export interface EventConfig {
     closedOverlay: boolean;
   };
 
-  // バス情報設定
   bus?: {
     defaultFromStop: string;
     defaultToStop: string;
@@ -50,7 +49,6 @@ export interface EventConfig {
         en: string;
       };
     };
-    // 停留所名に対する多言語ラベル
     stopTranslations?: {
       [stopName: string]: {
         ja: string;
@@ -71,7 +69,7 @@ export const CUSTOM_CONFIG: EventConfig = {
   },
   
   navigation: {
-    homepageUrl: "",
+    homepageUrl: "https://rsu-suba.github.io/FesTime/",
     basePath: "/FesTime",
   },
   
