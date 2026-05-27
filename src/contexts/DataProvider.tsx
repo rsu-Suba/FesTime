@@ -15,12 +15,12 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useMapControl } from "@/contexts/MapContext";
 import { loadJSON } from "@/lib/Data/JSONLoader";
-import { CUSTOM_CONFIG } from "@/constants/custom.config";
 
 dayjs.extend(customParseFormat);
 
-const FETCH_INTERVAL_MS = CUSTOM_CONFIG.api.pollingIntervalMs;
-const FULL_REFRESH_FREQ = CUSTOM_CONFIG.api.fullRefreshFrequency;
+const FETCH_INTERVAL_MS = 30000;
+const API_CACHE_TIME = 15000;
+const FULL_REFRESH_FREQ = 3;
 
 export const DataProvider = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
@@ -31,7 +31,7 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
   const isBoothModalOpen = !!searchParams.get("booth-info");
   const isVotePage = pathname?.startsWith("/vote");
   const isAdminPage = pathname?.includes("/admin") || pathname?.includes("/booth");
-  const isSuspended = (isAdminPage || isVotePage || isMapOpen || isBoothModalOpen);
+  const isSuspended = (isMapOpen || isBoothModalOpen);
 
   const [isLoading, setIsLoading] = useState(!isSuspended);
   const [stalls, setStalls] = useState<StallStatus[]>([]);
@@ -43,6 +43,7 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
   const [isStallsLive, setIsStallsLive] = useState(false);
   const isStallsLiveRef = useRef(false);
 
+  const [isJSONLoaded, setIsJSONLoaded] = useState(false);
   const staticStallNameMap = useRef<Record<number | string, string>>({});
 
   useEffect(() => {
@@ -50,6 +51,7 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
       data.forEach((s) => {
         if (s.id) staticStallNameMap.current[s.id] = s.name;
       });
+      setIsJSONLoaded(true);
     });
   }, []);
 
@@ -77,7 +79,7 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
     }
     const isFullRefresh = forceFull || refreshCycle.current % FULL_REFRESH_FREQ === 0;
     const currentInterval = config.poll_interval_ms || FETCH_INTERVAL_MS;
-    const currentTTL = currentInterval - 1000;
+    const ttl = forceFull ? 0 : (currentInterval - 1000);
 
     if (!isFullRefresh && isStallsLiveRef.current) {
       console.log("[DataProvider] Skipping stalls-only polling (Realtime is active)");
@@ -87,8 +89,8 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
 
     try {
       const allData = isFullRefresh
-        ? await fetchAllData(forceFull ? 0 : currentTTL)
-        : await fetchStallsOnly(currentTTL);
+        ? await fetchAllData(ttl)
+        : await fetchStallsOnly(ttl);
 
       if (allData) {
         lastFetchTime.current = Date.now();
@@ -96,18 +98,23 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
 
         if (allData.s) {
           setStalls(
-            allData.s.map((row: any) => {
-              const id = row.i;
-              const name = staticStallNameMap.current[id] || row.n || stallNameMap.current[id] || `Stall ${id}`;
-              if (row.n) stallNameMap.current[id] = row.n;
+            allData.s
+              .map((row: any) => {
+                const id = row.i;
+                const name = staticStallNameMap.current[id] || row.n || stallNameMap.current[id];
 
-              return {
-                id: id,
-                stallName: name,
-                crowdLevel: row.c,
-                stockLevel: row.l,
-              };
-            }),
+                if (!name) return null;
+
+                if (row.n) stallNameMap.current[id] = row.n;
+
+                return {
+                  id: id,
+                  stallName: name,
+                  crowdLevel: row.c,
+                  stockLevel: row.l,
+                };
+              })
+              .filter((s: StallStatus | null): s is StallStatus => s !== null),
           );
         }
         if (isFullRefresh) {
@@ -132,6 +139,7 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
                 edit_reason: row.r,
               })),
             );
+          /* 
           if (allData.q)
             setQuestions(
               allData.q.map((row: any) => ({
@@ -142,6 +150,7 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
                 edit_reason: row.r,
               })),
             );
+          */
           if (allData.config) setConfig(allData.config);
         }
       }
@@ -154,75 +163,79 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
-    if (isSuspended) {
-      setIsStallsLive(false);
-      isStallsLiveRef.current = false;
-      return;
-    }
+    setIsStallsLive(false);
+    isStallsLiveRef.current = false;
+    return;
+    // if (isSuspended) {
+    //   setIsStallsLive(false);
+    //   isStallsLiveRef.current = false;
+    //   return;
+    // }
 
-    const stallChannel = supabase
-      .channel("stalls-changes")
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "stalls_status" }, (payload) => {
-        const updatedRow = payload.new as any;
-        setStalls((currentStalls) =>
-          currentStalls.map((s) =>
-            s.id === updatedRow.id
-              ? { ...s, crowdLevel: updatedRow.crowd_level, stockLevel: updatedRow.stock_level }
-              : s,
-          ),
-        );
-      })
-      .subscribe((status) => {
-        const isLive = status === "SUBSCRIBED";
-        setIsStallsLive(isLive);
-        isStallsLiveRef.current = isLive;
-      });
+    // const stallChannel = supabase
+    //   .channel("stalls-changes")
+    //   .on("postgres_changes", { event: "UPDATE", schema: "public", table: "stalls_status" }, (payload) => {
+    //     const updatedRow = payload.new as any;
+    //     setStalls((currentStalls) =>
+    //       currentStalls.map((s) =>
+    //         s.id === updatedRow.id
+    //           ? { ...s, crowdLevel: updatedRow.crowd_level, stockLevel: updatedRow.stock_level }
+    //           : s,
+    //       ),
+    //     );
+    //   })
+    //   .subscribe((status) => {
+    //     const isLive = status === "SUBSCRIBED";
+    //     setIsStallsLive(isLive);
+    //     isStallsLiveRef.current = isLive;
+    //   });
 
-    const tables = ["news"];
-    const otherChannels = tables.map((tableName) =>
-      supabase
-        .channel(`${tableName}-changes`)
-        .on("postgres_changes", { event: "*", schema: "public", table: tableName }, () => {
-          performRefresh(true);
-        })
-        .subscribe(),
-    );
+    // const tables = ["news"];
+    // const otherChannels = tables.map((tableName) =>
+    //   supabase
+    //     .channel(`${tableName}-changes`)
+    //     .on("postgres_changes", { event: "*", schema: "public", table: tableName }, () => {
+    //       performRefresh(true);
+    //     })
+    //     .subscribe(),
+    // );
 
-    return () => {
-      supabase.removeChannel(stallChannel);
-      otherChannels.forEach((ch) => supabase.removeChannel(ch));
-    };
+    // return () => {
+    //   supabase.removeChannel(stallChannel);
+    //   otherChannels.forEach((ch) => supabase.removeChannel(ch));
+    // };
   }, [isSuspended]);
 
   useEffect(() => {
-    if (isInitialRefreshStarted.current) return;
+    if (isInitialRefreshStarted.current || !isJSONLoaded) return;
     const shouldFetchImmediately = isAdminPage || !isSuspended;
     if (!shouldFetchImmediately) return;
 
     isInitialRefreshStarted.current = true;
     performRefresh(true);
-
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
-        const now = Date.now();
-        const diff = now - lastFetchTime.current;
-        const currentInterval = config.poll_interval_ms || FETCH_INTERVAL_MS;
-        if (diff > currentInterval) {
-          if (!isSuspended) performRefresh(false);
-        }
-      }
-    };
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, [isSuspended, config.poll_interval_ms]);
+    return;
+    // const handleVisibilityChange = () => {
+    //   if (document.visibilityState === "visible") {
+    //     const now = Date.now();
+    //     const diff = now - lastFetchTime.current;
+    //     const currentInterval = config.poll_interval_ms || FETCH_INTERVAL_MS;
+    //     if (diff > currentInterval) {
+    //       if (!isSuspended) performRefresh(false);
+    //     }
+    //   }
+    // };
+    // document.addEventListener("visibilitychange", handleVisibilityChange);
+    // return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [isSuspended, config.poll_interval_ms, isJSONLoaded]);
 
   useEffect(() => {
-    if (isSuspended) return;
+    return;
+    // if (isSuspended) return;
 
-    const interval = config.poll_interval_ms || FETCH_INTERVAL_MS;
-    const jitter = Math.floor(Math.random() * 5000);
-    const timer = setInterval(() => performRefresh(), interval + jitter);
-    return () => clearInterval(timer);
+    // const interval = config.poll_interval_ms || FETCH_INTERVAL_MS;
+    // const jitter = Math.floor(Math.random() * 5000);
+    // const timer = setInterval(() => performRefresh(), interval + jitter);
+    // return () => clearInterval(timer);
   }, [isSuspended, config.poll_interval_ms]);
 
   const value: DataContextType = {
@@ -234,7 +247,8 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
       fetchData: async () => performRefresh(true),
       handlePost: () => {},
       askQuestion: async (text: string) => {
-        await askQuestion(text);
+        console.warn("[DataProvider] askQuestion is currently disabled");
+        // await askQuestion(text);
       },
       lastUpdated,
       isStallsLive,

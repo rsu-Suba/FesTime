@@ -1,7 +1,5 @@
 import React from "react";
 import { QRCode } from "antd";
-import { getPath } from "@/constants/paths";
-import { CUSTOM_CONFIG } from "@/constants/custom.config";
 
 interface CustomQRCodeProps {
   value: string;
@@ -22,14 +20,14 @@ const colors = {
 
 export default function CustomQRCode({
   value,
-  size = 250,
-  icon = getPath(CUSTOM_CONFIG.theme.mainLogoPath),
+  size = 200,
+  icon = "/img/common/mainlogo.webp",
   iconW = 77,
   type = "svg",
   className,
   style,
 }: CustomQRCodeProps) {
-  const padding = 28;
+  const padding = 32;
   const lSize = 64;
   const lThickness = 6;
   const iconSize = { width: iconW, height: iconW * 0.684877 };

@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 
 const docsDir = path.resolve(process.cwd(), "docs");
-const basePath = "/FesTime";
+const basePath = "/app";
 
 function walk(dir: string): void {
   if (!fs.existsSync(dir)) {
@@ -22,19 +22,19 @@ function walk(dir: string): void {
       let newContent = content;
 
       if (entry.name.endsWith(".html")) {
-        newContent = newContent.replace(/(src|href)="\/((?!FesTime\/|https?|ftp)[^"]+)"/g, `$1="${basePath}/$2"`);
+        newContent = newContent.replace(/(src|href)="\/((?!app\/|https?|ftp)[^"]+)"/g, `$1="${basePath}/$2"`);
       }
 
       if (/\.(js|json)$/.test(entry.name)) {
         newContent = newContent.replace(
-          /(["'])\/(?!(?:FesTime|https?|ftp)\/)([^"']+\.(?:png|jpg|jpeg|svg|gif|webp|json|js))(["'])/g,
+          /(["'])\/(?!(?:app|https?|ftp)\/)([^"']+\.(?:png|jpg|jpeg|svg|gif|webp|json|js))(["'])/g,
           `$1${basePath}/$2$3`,
         );
       }
 
       if (entry.name.endsWith(".css")) {
         newContent = newContent.replace(/url\(\s*["']?\/([^"'>)]+)["']?\s*\)/g, (match, p1) => {
-          if (p1.startsWith("FesTime/") || p1.startsWith("/FesTime/")) return match;
+          if (p1.startsWith("app/") || p1.startsWith("/app/")) return match;
           const cleanPath = p1.startsWith("/") ? p1.slice(1) : p1;
           return `url("${basePath}/${cleanPath}")`;
         });

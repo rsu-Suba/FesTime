@@ -93,7 +93,7 @@
   border: 1px solid var(--border-color, #ddd);
   border-radius: 32px;
   overflow: hidden;
-  background-color: var(--mainCanvas-color, #f0f0f0);
+  background-color: #ebf0ec;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -136,6 +136,47 @@
 
 .maps-control-btn.fs-btn {
   font-size: 10px;
+}
+
+.pin-wrapper {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  transform: translate(-16px, -32px);
+}
+
+.pin-head {
+  width: 26px;
+  height: 26px;
+  background-color: #ff4d4f;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  border: 3px solid #6f0000;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
+}
+
+.pin-pulse {
+  position: absolute;
+  top: 24px;
+  left: 0;
+  width: 32px;
+  height: 16px;
+  background: rgba(255, 77, 79, 0.6);
+  border-radius: 50%;
+  transform: scale(0.1);
+  animation: pulse 1s infinite ease-out;
+  z-index: -1;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(3.5);
+    opacity: 0;
+  }
 }
 
 @media screen and (max-width: 767px) {

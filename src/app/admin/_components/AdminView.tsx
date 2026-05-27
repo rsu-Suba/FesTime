@@ -96,11 +96,6 @@ export default function AdminView() {
           <BoothManager />
         </Suspense>
       ),
-      Vote: (
-        <Suspense key="vote-mgr" fallback={<FallbackLoader />}>
-          <VoteAdmin />
-        </Suspense>
-      ),
       QR: (
         <Suspense key="qr-mgr" fallback={<FallbackLoader />}>
           <BoothQRManager />
@@ -121,14 +116,22 @@ export default function AdminView() {
 
     if (isStallAdmin) {
       if (isMobile) {
-        return [[managers.Booth], [managers.Settings], [], []];
+        return [[managers.Booth], [managers.NewsStatus]];
       }
-      return [[managers.Booth], [managers.NewsStatus], []];
+      if (columns >= 3) {
+        return [[managers.Booth], [managers.NewsStatus], []];
+      }
+      return [
+        [managers.Booth],
+        [
+          React.cloneElement(managers.NewsStatus as React.ReactElement, { key: "news-status-col" }),
+        ],
+      ];
     }
 
     if (activeTab === "1") {
       if (isMobile) {
-        return [[managers.News], [managers.QA], [managers.Lost]];
+        return [[managers.News], [managers.QA], [managers.Lost], [managers.Settings]];
       }
       if (columns >= 3) {
         return [[managers.News], [managers.QA], [managers.Lost]];
@@ -136,7 +139,6 @@ export default function AdminView() {
       return [
         [managers.News],
         [
-          React.cloneElement(managers.QA as React.ReactElement, { key: "qa-col" }),
           React.cloneElement(managers.Lost as React.ReactElement, { key: "lost-col" }),
         ],
       ];
@@ -150,7 +152,20 @@ export default function AdminView() {
           [<VoteAdmin key="other" filterCategory="o" />],
         ];
       }
-      return [[managers.Vote]];
+      if (columns >= 3) {
+        return [
+          [<VoteAdmin key="stall" filterCategory="s" />],
+          [<VoteAdmin key="exhibition" filterCategory="e" />],
+          [<VoteAdmin key="other" filterCategory="o" />],
+        ];
+      }
+      return [
+        [
+          <VoteAdmin key="stall" filterCategory="s" />,
+          <VoteAdmin key="exhibition" filterCategory="e" />,
+        ],
+        [<VoteAdmin key="other" filterCategory="o" />],
+      ];
     }
 
     if (activeTab === "4" || (isMobile && activeTab === "3")) {
@@ -247,15 +262,13 @@ export default function AdminView() {
           style={
             isMobile
               ? { width: `${layout.length * 100}%` }
-              : isStallAdmin
-                ? { justifyContent: "center" }
-                : activeTab === "3"
-                  ? { margin: 0, width: "100%" }
-                  : undefined
+              : activeTab === "4" || (isMobile && activeTab === "3")
+                ? { margin: 0, width: "100%" }
+                : undefined
           }
         >
           {layout.map((column, i) => (
-            <PCCanvasColumn key={i} width={isMobile ? "100%" : isStallAdmin ? "33.3%" : `${100 / layout.length}%`}>
+            <PCCanvasColumn key={i} width={isMobile ? "100%" : `${100 / layout.length}%`}>
               {column}
             </PCCanvasColumn>
           ))}

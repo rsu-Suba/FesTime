@@ -5,15 +5,17 @@ import { useRole } from "@/contexts/RoleContext";
 import React from "react";
 import FullPageLoader from "@/components/Layout/FullPageLoader";
 import { useSearchParams, useRouter } from "next/navigation";
-import { verifyToken } from "@/features/auth/utils/QRAuth";
-import { BOOTH_IDS } from "@/constants/booth-ids";
 import { loginAsStallAdmin } from "@/features/auth/api";
+import { BOOTH_IDS } from "@/constants/booth-ids";
 import styles from "./page.module.css";
+import { AnimatePresence, motion } from "framer-motion";
+import ClosedView from "@/app/_components/ClosedView";
 
 const AdminView = React.lazy(() => import("@/app/admin/_components/AdminView"));
 
 export default function BoothAdminPage() {
   const { setRole, isStallAdmin, isAdmin, assignedStall, isAuthenticating } = useRole();
+  const [showClosedOverlay, setShowClosedOverlay] = React.useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const searchParams = useSearchParams();
@@ -27,35 +29,31 @@ export default function BoothAdminPage() {
 
   useEffect(() => {
     const id = searchParams.get("id");
-    const token = searchParams.get("token");
+    const pwd = searchParams.get("pwd");
     const stallName = Object.keys(BOOTH_IDS).find((name) => BOOTH_IDS[name] === id);
 
-    const checkAuth = async (stallId: string, name: string) => {
-      if (token) {
-        setLoading(true);
-        const isValid = await verifyToken(stallId, token);
-        if (isValid) {
-          console.log("[Booth Page] Authorized via secure QR token.");
-          try {
-            await loginAsStallAdmin();
-            setRole("stall-admin", name);
-            const params = new URLSearchParams(searchParams.toString());
-            params.delete("token");
-            router.replace(`/booth?${params.toString()}`);
-          } catch (loginErr) {
-            console.error("[Booth Page] Background login failed:", loginErr);
-            setError("ログインに失敗しました。ネットワーク状況を確認してください。");
-          }
-        } else {
-          console.error("[Booth Page] Invalid or expired QR token.");
-          setError("QRコードの期限切れまたは無効です。もう一度表示し直してください。");
+    const checkAuth = async (stallId: string, name: string, pass: string) => {
+      setLoading(true);
+      try {
+        await loginAsStallAdmin(pass);
+        console.log("[Booth Page] Authorized via secure QR password.");
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("booth_pwd", pass);
         }
-        setLoading(false);
+        setRole("stall-admin", name);
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete("pwd");
+        params.delete("id");
+        router.replace(`/booth?${params.toString()}`);
+      } catch (loginErr: any) {
+        console.error("[Booth Page] QR login failed:", loginErr);
+        setError("ログインに失敗しました。QRコードが正しいか確認してください。");
       }
+      setLoading(true);
     };
 
-    if (stallName && id) {
-      checkAuth(id, stallName);
+    if (stallName && id && pwd) {
+      checkAuth(id, stallName, pwd);
     } else if (!assignedStall) {
       if (!isAuthenticating && !isStallAdmin) {
         const timer = setTimeout(() => {
@@ -72,14 +70,42 @@ export default function BoothAdminPage() {
 
   if (isStallAdmin && assignedStall) {
     return (
-      <Suspense fallback={<FullPageLoader />}>
-        <AdminView />
-      </Suspense>
+      <div className={styles.container}>
+        <AnimatePresence>
+          {showClosedOverlay && (
+            <motion.div
+              key="closed-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              style={{ zIndex: 20000, position: "fixed", inset: 0 }}
+            >
+              <ClosedView onClose={() => setShowClosedOverlay(false)} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+        <Suspense fallback={<FullPageLoader />}>
+          <AdminView />
+        </Suspense>
+      </div>
     );
   }
 
   return (
     <div className={styles.container}>
+      <AnimatePresence>
+        {showClosedOverlay && (
+          <motion.div
+            key="closed-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{ zIndex: 20000, position: "fixed", inset: 0 }}
+          >
+            <ClosedView onClose={() => setShowClosedOverlay(false)} />
+          </motion.div>
+        )}
+      </AnimatePresence>
       <div className={styles.inner}>
         <h3 className={styles.title}>アクセス制限</h3>
         <p className={styles.description}>

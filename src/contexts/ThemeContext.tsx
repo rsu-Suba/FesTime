@@ -4,7 +4,6 @@ import enUS from "antd/lib/locale/en_US";
 import jaJP from "antd/lib/locale/ja_JP";
 import { useTranslation } from "react-i18next";
 import { getCookie, setCookie } from "@/lib/Server/Cookie";
-import { CUSTOM_CONFIG } from "@/constants/custom.config";
 import DarkClick from "@/lib/Data/DarkClick";
 
 type ThemeContextType = {
@@ -25,8 +24,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
     const { i18n } = useTranslation();
-    const primaryColor = CUSTOM_CONFIG.theme.primaryColor.light;
-    const darkPrimaryColor = CUSTOM_CONFIG.theme.primaryColor.dark;
+    const primaryColor = "#1f1f1f";
     const { defaultAlgorithm, darkAlgorithm } = theme;
 
     const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -45,7 +43,7 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
         setCookie("dark", isDarkMode.toString(), 7);
 
         if (root) {
-            root.style.setProperty("--main-color", isDarkMode ? darkPrimaryColor : primaryColor);
+            root.style.setProperty("--main-color", isDarkMode ? "#f0f0f0" : primaryColor);
         }
 
         let meta = document.querySelector('meta[name="theme-color"]');
@@ -54,11 +52,11 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
             meta.setAttribute("name", "theme-color");
             document.head.appendChild(meta);
         }
-        meta.setAttribute("content", isDarkMode ? CUSTOM_CONFIG.theme.backgroundColor.dark : CUSTOM_CONFIG.theme.backgroundColor.light);
-    }, [isDarkMode, darkPrimaryColor, primaryColor]);
+        meta.setAttribute("content", isDarkMode ? "#18181a" : "#ffffff");
+    }, [isDarkMode]);
 
     const themeValue = useMemo(() => {
-        const currentPrimary = isDarkMode ? darkPrimaryColor : primaryColor;
+        const currentPrimary = isDarkMode ? "#f0f0f0" : "#1f1f1f";
         return {
             primaryColor: currentPrimary,
             isDarkMode,
@@ -68,7 +66,7 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
             isPerformanceMode,
             setIsPerformanceMode,
         };
-    }, [isDarkMode, localeLang, isPerformanceMode, darkPrimaryColor, primaryColor]);
+    }, [isDarkMode, localeLang, isPerformanceMode]);
 
     return (
         <ThemeContext.Provider value={themeValue}>
@@ -84,7 +82,7 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
                     components: {
                         Select: {
                             optionSelectedColor: isDarkMode ? "#000000" : "#ffffff",
-                            optionSelectedBg: isDarkMode ? (CUSTOM_CONFIG.theme.primaryColor.dark === "#f0f0f0" ? "#f0f0f0" : darkPrimaryColor) : primaryColor,
+                            optionSelectedBg: isDarkMode ? "#f0f0f0" : "#1f1f1f",
                         },
                         Radio: {
                             buttonSolidCheckedColor: isDarkMode ? "#000000" : "#ffffff",

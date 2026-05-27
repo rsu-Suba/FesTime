@@ -1,11 +1,11 @@
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { getPath } from "@/constants/paths";
-import ClientProviders from "@/contexts/ClientProviders";
 import { CUSTOM_CONFIG } from "@/constants/custom.config";
+import ClientProviders from "@/contexts/ClientProviders";
 import "@/styles/global-app.css";
 
 export const metadata = {
-  title: CUSTOM_CONFIG.identity.appTitle,
+  title: `${CUSTOM_CONFIG.identity.appTitle} | ${CUSTOM_CONFIG.identity.organizationName}`,
   description: CUSTOM_CONFIG.identity.appDescription,
   icons: {
     icon: getPath("/img/common/favicon.ico"),

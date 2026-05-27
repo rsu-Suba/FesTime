@@ -12,9 +12,32 @@ import VisibilityRoundedIcon from "@mui/icons-material/VisibilityRounded";
 import MoreHorizRoundedIcon from "@mui/icons-material/MoreHorizRounded";
 import { useNavigation } from "./useNavigation";
 import styles from "./Bottom.module.css";
-import { CUSTOM_CONFIG } from "@/constants/custom.config";
 
-export type BottomMode = "user" | "admin" | "booth" | "vote";
+const NAV_CONFIG = {
+  user: [
+    { key: "0", icon: HomeRoundedIcon, label: "Main" },
+    { key: "1", icon: StorefrontRoundedIcon, label: "Booth" },
+    { key: "2", icon: VisibilityRoundedIcon, label: "Exhibition" },
+    { key: "3", icon: WidgetsRoundedIcon, label: "Info" },
+  ],
+  admin: [
+    { key: "0", icon: NewspaperRoundedIcon, label: "News" },
+    { key: "1", icon: QuestionAnswerRoundedIcon, label: "QA" },
+    { key: "2", icon: SearchRoundedIcon, label: "Lost" },
+    { key: "3", icon: SettingsRoundedIcon, label: "Settings" },
+  ],
+  booth: [
+    { key: "0", icon: HomeRoundedIcon, label: "Main" },
+    { key: "1", icon: SettingsRoundedIcon, label: "Settings" },
+  ],
+  vote: [
+    { key: "0", icon: StorefrontRoundedIcon, label: "模擬店" },
+    { key: "1", icon: VisibilityRoundedIcon, label: "展示" },
+    { key: "2", icon: MoreHorizRoundedIcon, label: "その他" },
+  ],
+};
+
+export type BottomMode = keyof typeof NAV_CONFIG;
 
 interface BottomNavigatorProps {
   mode: BottomMode;
@@ -33,33 +56,7 @@ export default function BottomNavigator({
   setIsMoving,
   disabled,
 }: BottomNavigatorProps) {
-  const items = React.useMemo(() => {
-    const config = {
-      user: [
-        { key: "0", icon: HomeRoundedIcon, label: "Main" },
-        { key: "1", icon: StorefrontRoundedIcon, label: "Booth" },
-        ...(CUSTOM_CONFIG.features.exhibition ? [{ key: "2", icon: VisibilityRoundedIcon, label: "Exhibition" }] : []),
-        { key: "3", icon: WidgetsRoundedIcon, label: "Info" },
-      ],
-      admin: [
-        ...(CUSTOM_CONFIG.features.news ? [{ key: "0", icon: NewspaperRoundedIcon, label: "News" }] : []),
-        ...(CUSTOM_CONFIG.features.qa ? [{ key: "1", icon: QuestionAnswerRoundedIcon, label: "Q & A" }] : []),
-        ...(CUSTOM_CONFIG.features.lost ? [{ key: "2", icon: SearchRoundedIcon, label: "Lost" }] : []),
-        { key: "3", icon: SettingsRoundedIcon, label: "Settings" },
-      ],
-      booth: [
-        { key: "0", icon: HomeRoundedIcon, label: "Main" },
-        { key: "1", icon: SettingsRoundedIcon, label: "Settings" },
-      ],
-      vote: [
-        { key: "0", icon: StorefrontRoundedIcon, label: "模擬店" },
-        ...(CUSTOM_CONFIG.features.exhibition ? [{ key: "1", icon: VisibilityRoundedIcon, label: "展示" }] : []),
-        { key: "2", icon: MoreHorizRoundedIcon, label: "その他" },
-      ],
-    };
-    return (config[mode as keyof typeof config] || []) as { key: string; icon: any; label: string }[];
-  }, [mode]);
-
+  const items = NAV_CONFIG[mode];
   const tabCount = items.length;
 
   const { indicatorRef, footerRef, triggerMove, indicatorStyles, slotWidth, SIDE_PADDING } = useNavigation({

@@ -9,6 +9,7 @@ import dayjs from "dayjs";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLostStatus } from "../hooks/useLostStatus";
 import styles from "./LostStatus.module.css";
+import { CUSTOM_CONFIG } from "@/constants/custom.config";
 
 export default function LostStatus() {
   const { t } = useTranslation();
@@ -108,6 +109,7 @@ export default function LostStatus() {
             </AnimatePresence>
           </div>
         )}
+       
       </CardInside>
     </CardBase>
   );

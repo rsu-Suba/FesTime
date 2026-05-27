@@ -2,6 +2,7 @@ export interface VoteTarget {
   id: string;
   category: string;
   name: string;
+  team?: string;
 }
 
 export interface TimeStatus {
@@ -9,7 +10,11 @@ export interface TimeStatus {
   message: string;
 }
 
-export const checkVoteTime = (startVal?: number | null, endVal?: number | null): TimeStatus => {
+export const checkVoteTime = (startVal?: number | null, endVal?: number | null, enabled?: number | null): TimeStatus => {
+  if (enabled !== undefined && enabled !== null && enabled !== 1) {
+    return { canVote: false, message: "投票は現在受け付けておりません" };
+  }
+
   const nowSeconds = Math.floor(Date.now() / 1000);
 
   if (startVal !== undefined && startVal !== null && startVal !== 0 && nowSeconds < startVal) {

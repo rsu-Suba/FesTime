@@ -8,6 +8,8 @@ import { CUSTOM_CONFIG } from "@/constants/custom.config";
 import { useTranslation } from "react-i18next";
 import { useData } from "@/contexts/DataContext";
 import { Drawer } from "vaul";
+import { usePathname } from "next/navigation";
+import dayjs from "dayjs";
 import { motion, AnimatePresence } from "framer-motion";
 import Settings from "@/components/Misc/Settings";
 
@@ -19,7 +21,6 @@ import EventStatus from "@/features/event/components/EventStatus";
 import VoteStatus from "@/features/vote/components/VoteStatus";
 import BoothStatus from "@/features/booth/components/BoothStatus";
 import BoothStatusFavorite from "@/features/booth/components/BoothStatusFavorite";
-import VisitedCard from "@/features/booth/components/VisitedCard";
 import ExhibitionStatus from "@/features/event/components/ExhibitionStatus";
 import NewsStatus from "@/features/news/components/NewsStatus";
 import PCCanvasColumn from "@/components/Layout/PCCanvasColumn";
@@ -27,6 +28,7 @@ import MapRoundedIcon from "@mui/icons-material/MapRounded";
 import BuildRoundedIcon from "@mui/icons-material/BuildRounded";
 import Homepage from "@/components/Layout/Homepage";
 import styles from "./UserView.module.css";
+import ClosedView from "@/app/_components/ClosedView";
 
 const BusStatus = React.lazy(() => import("@/features/bus/components/BusStatus"));
 const LostStatus = React.lazy(() => import("@/features/lost/components/LostStatus"));
@@ -43,6 +45,8 @@ export default function UserView() {
   const {
     api: { fetchedData },
   } = useData();
+  const pathname = usePathname();
+  const [showClosedOverlay, setShowClosedOverlay] = React.useState(CUSTOM_CONFIG.features.closedOverlay);
   const {
     isMobile,
     columns,
@@ -59,25 +63,33 @@ export default function UserView() {
     targetPlace,
     isSettingsOpen,
     setIsSettingsOpen,
+    hasVotedBoth,
   } = useUserView();
 
   const isMaintenance = fetchedData?.config?.maintenance_mode === 1;
   const showMaintenance = isMaintenance && !isAdmin && !isStallAdmin;
 
+  const isEventDay = useMemo(() => {
+    if (pathname?.startsWith("/demo")) return true;
+    const now = dayjs();
+    const start = dayjs(CUSTOM_CONFIG.identity.eventStartDate).startOf("day");
+    const end = dayjs(CUSTOM_CONFIG.identity.eventEndDate).endOf("day");
+    return now.isAfter(start) && now.isBefore(end);
+  }, [pathname]);
+
   const cards = useMemo(
     () => ({
       Spot: null,
       HotNews: (hasHotNews && CUSTOM_CONFIG.features.news) ? <NewsStatus key="hotnews" onlyHot={true} hotTime={hotTime} /> : null,
-      Events: CUSTOM_CONFIG.features.event ? <EventStatus key="events" /> : null,
+      Events: (CUSTOM_CONFIG.features.event && isEventDay) ? <EventStatus key="events" /> : null,
       Vote: CUSTOM_CONFIG.features.vote ? <VoteStatus key="vote" /> : null,
-      Visited: <VisitedCard key="visited" />,
       Exhibition: CUSTOM_CONFIG.features.exhibition ? <ExhibitionStatus key="exhibition" /> : null,
       BoothFav: <BoothStatusFavorite key="boothfav" />,
       Booth: <BoothStatus key="booth" />,
       Booth1: <BoothStatus key="booth1" split="first" />,
       Booth2: <BoothStatus key="booth2" split="second" />,
       News: CUSTOM_CONFIG.features.news ? <NewsStatus key="news" /> : null,
-      Bus: CUSTOM_CONFIG.features.bus ? (
+      Bus: (CUSTOM_CONFIG.features.bus && isEventDay) ? (
         <Suspense key="bus" fallback={<FallbackLoader text="Loading Bus..." />}>
           <BusStatus />
         </Suspense>
@@ -100,15 +112,18 @@ export default function UserView() {
   );
 
   const layout = useMemo(() => {
-    return calculateLayout(cards, { isMobile, columns, isStallAdmin });
-  }, [cards, isMobile, columns, isStallAdmin]);
+    return calculateLayout(cards, { isMobile, columns, isStallAdmin, hasVotedBoth });
+  }, [cards, isMobile, columns, isStallAdmin, hasVotedBoth]);
 
   if (showMaintenance) {
     return (
       <div
         style={{
           height: "100vh",
+          width: "100vw",
           display: "flex",
+          inset: "0",
+          position: "absolute",
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
@@ -132,13 +147,29 @@ export default function UserView() {
 
   return (
     <div className="mainCanvas">
-      {CUSTOM_CONFIG.features.map && (
-        <Suspense fallback={null}>
-          <MapModal isOpen={isMapOpen} onClose={() => setIsMapOpen(false)} targetPlace={targetPlace} />
-          <BoothModalManager />
-          <SpotStatus />
-        </Suspense>
-      )}
+      <AnimatePresence>
+        {CUSTOM_CONFIG.features.closedOverlay && showClosedOverlay && (
+          <motion.div
+            key="closed-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{ zIndex: 20000, position: "fixed", inset: 0 }}
+          >
+            <ClosedView onClose={() => setShowClosedOverlay(false)} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <Suspense fallback={null}>
+        {CUSTOM_CONFIG.features.map && (
+          <>
+            <MapModal isOpen={isMapOpen} onClose={() => setIsMapOpen(false)} targetPlace={targetPlace} />
+            <BoothModalManager />
+            <SpotStatus />
+          </>
+        )}
+      </Suspense>
 
       <Drawer.Root open={isSettingsOpen} onOpenChange={setIsSettingsOpen} modal={false}>
         <Drawer.Portal>
@@ -223,6 +254,18 @@ export default function UserView() {
             <span className={styles.mapFloatText}>MAP</span>
           </button>
           <Menu />
+          <div style={{
+            position: "fixed",
+            bottom: "16px",
+            left: "16px",
+            opacity: 0.5,
+            fontSize: "14px",
+            color: "var(--text-color)",
+            zIndex: 1000,
+            pointerEvents: "none"
+          }}>
+            Powered by <a href="https://github.com/rsu-Suba/FesTime" target="_blank" rel="noreferrer" style={{color: "inherit", textDecoration: "underline", pointerEvents: "auto"}}>FesTime</a>
+          </div>
         </div>
       )}
 
@@ -230,11 +273,19 @@ export default function UserView() {
         <>
           <div className="canvas" id="canvas" style={{ width: `${layout.length * 100}%` }}>
             {layout.map((column, i) => (
-              <PCCanvasColumn
-                key={i}
-                style={i === 0 ? { background: "var(--header-grad)", backgroundColor: "var(--mainCanvas-color)" } : {}}
-              >
+              <PCCanvasColumn key={i}>
                 {column}
+                {i === 0 && (
+                  <div style={{ 
+                    textAlign: "center", 
+                    padding: "20px 0 100px", 
+                    opacity: 0.5, 
+                    fontSize: "11px",
+                    color: "var(--text-color)" 
+                  }}>
+                    Powered by <a href="https://github.com/rsu-Suba/FesTime" target="_blank" rel="noreferrer" style={{color: "inherit", textDecoration: "underline"}}>FesTime</a>
+                  </div>
+                )}
               </PCCanvasColumn>
             ))}
           </div>

@@ -3,7 +3,6 @@
 import { useMemo } from "react";
 import dynamic from "next/dynamic";
 import { getPath } from "@/constants/paths";
-import { CardBase, CardInside } from "@/components/Layout/CardComp";
 import { useMapData } from "@/features/map/hooks/useMapData";
 import styles from "./MapSection.module.css";
 import "@/features/map/components/map.css";
@@ -28,8 +27,13 @@ export default function MapSection({ initialPlace }: { initialPlace?: string | n
   } = useMapData(initialPlace);
 
   return (
-    <CardBase title="Maps" disableTapAnimation={true}>
-      <CardInside className={styles.mapCard}>
+    <div className="carddiv" style={{ margin: 0 }}>
+      <div className="subProp">
+        <div className="cardTitle">
+          <p>Maps</p>
+        </div>
+      </div>
+      <div className={`card ${styles.mapCard}`} style={{ overflow: "hidden" }}>
         <div className={styles.mapWrapper}>
           <table className={styles.navTable}>
             <tbody>
@@ -70,6 +74,7 @@ export default function MapSection({ initialPlace }: { initialPlace?: string | n
               toggleFullscreen={toggleFullscreen}
               isFullscreen={isCurrentlyFullscreen}
               isReady={isReady}
+              initialPlace={initialPlace}
             />
             {!isReady && (
               <div className={styles.loadingOverlay}>
@@ -78,7 +83,7 @@ export default function MapSection({ initialPlace }: { initialPlace?: string | n
             )}
           </div>
         </div>
-      </CardInside>
-    </CardBase>
+      </div>
+    </div>
   );
 }

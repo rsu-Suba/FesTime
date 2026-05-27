@@ -66,7 +66,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
           {
             id: "1",
             name: "黒い財布",
-            place: "体育館",
+            place: "中庭",
             created_at: dayjs("2026-05-23T11:14:00").toISOString(),
             edit_reason: "",
           },
@@ -107,7 +107,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     setRole: (role: any) => {},
     isAdmin: false,
     isStallAdmin: isDemoBooth,
-    assignedStall: isDemoBooth ? "肉巻きおにぎり" : null,
+    assignedStall: isDemoBooth ? "模擬店サンプルA" : null,
     isAuthenticating: false,
   };
 

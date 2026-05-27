@@ -66,10 +66,12 @@ export default function VoteAdmin({ filterCategory }: VoteAdminProps) {
 
   const renderCard = (cat: string) => {
     const categoryData = results.filter((r) => r.c === cat).sort((a, b) => b.v - a.v);
+    const totalVotes = categoryData.reduce((sum, r) => sum + r.v, 0);
+
     return (
       <CardBase
         key={cat}
-        title={categoryLabels[cat] || cat}
+        title={`${categoryLabels[cat] || cat} (合計: ${totalVotes.toLocaleString()} 票)`}
         SubjectUpdated={
           <span className={styles.lastUpdatedText}>
             更新: {lastUpdatedStr}
@@ -107,9 +109,9 @@ export default function VoteAdmin({ filterCategory }: VoteAdminProps) {
         <>
           <PCCanvasColumn width="50%">
             {renderCard("s")}
-            {renderCard("e")}
+            {renderCard("o")}
           </PCCanvasColumn>
-          <PCCanvasColumn width="50%">{renderCard("o")}</PCCanvasColumn>
+          <PCCanvasColumn width="50%">{renderCard("e")}</PCCanvasColumn>
         </>
       )}
     </div>

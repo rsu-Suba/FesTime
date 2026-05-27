@@ -10,15 +10,13 @@ export interface BusTrip {
   arrivalTime: string;
   isoTime: string;
   routeTitle: string;
-  direction: string;
+  routeKey: string;
 }
 
 export const useBusData = () => {
-  const { i18n, t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [busData, setBusData] = useState<any>(null);
   const { currentTime } = useAppTime();
-
-  const lang = (i18n.language?.startsWith("ja") ? "ja" : "en") as "ja" | "en";
 
   useEffect(() => {
     loadJSON("bus").then(setBusData);
@@ -27,8 +25,10 @@ export const useBusData = () => {
   const allStops = useMemo(() => {
     if (!busData) return [];
     const stops = new Set<string>();
-    Object.values(busData).forEach((route: any) => {
-      route.route.forEach((s: string) => stops.add(s));
+    Object.values(busData).forEach((routeData: any) => {
+      if (routeData.route) {
+        routeData.route.forEach((s: string) => stops.add(s));
+      }
     });
     return Array.from(stops);
   }, [busData]);
@@ -36,17 +36,18 @@ export const useBusData = () => {
   const nowTimeStr = currentTime.format("HH:mm");
   const oneHourLaterStr = currentTime.add(1, "hour").format("HH:mm");
   
-  const defaultFrom = CUSTOM_CONFIG.bus?.defaultFromStop || "";
-  const defaultTo = CUSTOM_CONFIG.bus?.defaultToStop || "";
-
-  const [fromStop, setFromStop] = useState(defaultFrom);
-  const [toStop, setToStop] = useState(defaultTo);
+  const [fromStop, setFromStop] = useState(CUSTOM_CONFIG.bus?.defaultFromStop || "");
+  const [toStop, setToStop] = useState(CUSTOM_CONFIG.bus?.defaultToStop || "");
   const [filterMode, setFilterMode] = useState<"hour" | "all">("hour");
 
   useEffect(() => {
-      if (!fromStop && defaultFrom) setFromStop(defaultFrom);
-      if (!toStop && defaultTo) setToStop(defaultTo);
-  }, [defaultFrom, defaultTo]);
+    if (CUSTOM_CONFIG.bus?.defaultFromStop && !fromStop) {
+        setFromStop(CUSTOM_CONFIG.bus.defaultFromStop);
+    }
+    if (CUSTOM_CONFIG.bus?.defaultToStop && !toStop) {
+        setToStop(CUSTOM_CONFIG.bus.defaultToStop);
+    }
+  }, [fromStop, toStop]);
 
   const normalizeTime = (t: string) => {
     if (!t) return "";
@@ -58,8 +59,9 @@ export const useBusData = () => {
     if (!busData) return [];
     const results: BusTrip[] = [];
     
-    Object.keys(busData).forEach((routeKey) => {
-      const routeData = busData[routeKey];
+    Object.entries(busData).forEach(([routeKey, routeData]: [string, any]) => {
+      if (!routeData.route || !routeData.time) return;
+
       const fromIdx = routeData.route.indexOf(fromStop);
       const toIdx = routeData.route.indexOf(toStop);
 
@@ -73,15 +75,15 @@ export const useBusData = () => {
             const isWithinHour = isUpcoming && isoTime <= oneHourLaterStr;
 
             if (filterMode === "all" || isWithinHour) {
-              // CUSTOM_CONFIG から現在の言語のラベルを取得
-              const label = CUSTOM_CONFIG.bus?.routeLabels[routeKey]?.[lang] || routeKey;
+              const lang = i18n.language.startsWith("ja") ? "ja" : "en";
+              const routeLabel = CUSTOM_CONFIG.bus?.routeLabels[routeKey]?.[lang] || routeKey;
 
               results.push({
                 time,
                 arrivalTime,
                 isoTime,
-                routeTitle: label,
-                direction: routeKey,
+                routeTitle: routeLabel,
+                routeKey: routeKey,
               });
             }
           }
@@ -90,14 +92,13 @@ export const useBusData = () => {
     });
 
     return results.sort((a, b) => a.isoTime.localeCompare(b.isoTime));
-  }, [busData, fromStop, toStop, nowTimeStr, oneHourLaterStr, filterMode, lang]);
+  }, [busData, fromStop, toStop, nowTimeStr, oneHourLaterStr, filterMode, i18n.language]);
 
   const stopOptions = allStops
-    .filter((s) => s.includes("発") || s.includes("着") || s.includes("Dep") || s.includes("Arr"))
+    .filter((s) => s.includes("発") || s.includes("着"))
     .map((s) => ({
       value: s,
-      // CUSTOM_CONFIG.bus.stopTranslations に定義があればそれを使用、なければ生の値を表示
-      label: CUSTOM_CONFIG.bus?.stopTranslations?.[s]?.[lang] || s,
+      label: CUSTOM_CONFIG.bus?.stopTranslations?.[s]?.[i18n.language.startsWith("ja") ? "ja" : "en"] || s,
     }));
 
   const isInHourRange = (bus: BusTrip) => {

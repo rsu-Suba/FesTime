@@ -4,6 +4,8 @@ export interface EventConfig {
     organizationName: string;
     appTitle: string;
     appDescription: string;
+    eventStartDate: string; // YYYY-MM-DD
+    eventEndDate: string;   // YYYY-MM-DD
   };
   
   navigation: {
@@ -35,13 +37,13 @@ export interface EventConfig {
     event: boolean;
     news: boolean;
     map: boolean;
+    closedOverlay: boolean;
   };
 
   // バス情報設定
   bus?: {
     defaultFromStop: string;
     defaultToStop: string;
-    // ルートキーに対する多言語ラベル
     routeLabels: {
       [routeKey: string]: {
         ja: string;
@@ -60,10 +62,12 @@ export interface EventConfig {
 
 export const CUSTOM_CONFIG: EventConfig = {
   identity: {
-    eventName: "Event 2026",
-    organizationName: "運営名",
-    appTitle: "FesTime",
-    appDescription: "リアルタイム混雑状況・投票・落とし物管理",
+    eventName: "FesTime 2026",
+    organizationName: "Organization Name",
+    appTitle: "FesTime App",
+    appDescription: "Real-time status, voting, and management",
+    eventStartDate: "2026-05-27",
+    eventEndDate: "2026-05-28",
   },
   
   navigation: {
@@ -95,6 +99,7 @@ export const CUSTOM_CONFIG: EventConfig = {
     event: true,
     news: true,
     map: true,
+    closedOverlay: false,
   },
 
   bus: {

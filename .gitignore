@@ -36,7 +36,5 @@ next-env.d.ts
 test
 database
 supabase
-documents
 
 src/constants/booth-ids.ts
-readme.md

@@ -1,15 +1,14 @@
 import { useState, useEffect } from "react";
 import { App } from "antd";
-import { supabase } from "@/lib/Server/supabase";
-import { fetchAllData, AppSetting } from "@/lib/Server/baseApi";
-import { submitVote } from "@/features/vote/api";
+import { fetchAllData } from "@/lib/Server/baseApi";
+import { submitVote, getMyVotes, getVoterId, clearVoterId } from "@/features/vote/api";
 import { loadJSON } from "@/lib/Data/JSONLoader";
 import { VoteTarget, TimeStatus, checkVoteTime } from "@/features/vote/utils/voteUtils";
 
 export const useVoteData = () => {
   const { message } = App.useApp();
   const [targets, setTargets] = useState<VoteTarget[]>([]);
-  const [category, setCategory] = useState<string>("s");
+  const [category, setCategory] = useState<string>("e");
   const [loading, setLoading] = useState(true);
   const [votedItems, setVotedItems] = useState<Record<string, string>>({});
   const [votingId, setVotingId] = useState<string | null>(null);
@@ -19,25 +18,61 @@ export const useVoteData = () => {
     const fetchData = async () => {
       try {
         console.log("[Vote] Fetching targets and config...");
-        const [targetsRes, allData] = await Promise.all([
+        const [targetsRes, allData, voterId, boothRes, exhibitionsRes] = await Promise.all([
           loadJSON("vote"),
           fetchAllData(),
+          getVoterId(),
+          loadJSON("booth"),
+          loadJSON("exhibitions"),
         ]);
 
-        setTargets(targetsRes || []);
+        const booths = boothRes || [];
+        const exhibitions = exhibitionsRes || [];
 
-        const { data: rawSettings } = await supabase.from("app_settings").select("*");
-        const startVal = (rawSettings as AppSetting[] | null)?.find((s) => s.key === "vote_start_at")?.value_int;
-        const endVal = (rawSettings as AppSetting[] | null)?.find((s) => s.key === "vote_end_at")?.value_int;
-        
-        const status = checkVoteTime(startVal, endVal);
+        const enrichedTargets = (targetsRes || []).map((t: VoteTarget) => {
+          let teamName = "";
+          const targetName = t.name.trim();
+
+          if (t.category === "s") {
+            const booth = booths.find((b: any) => b.name.trim() === targetName);
+            if (booth) teamName = booth.team;
+          } else if (t.category === "e") {
+            const exhibition = exhibitions.find((e: any) => e.name.trim() === targetName);
+            if (exhibition) teamName = exhibition.team;
+          }
+          return { ...t, team: teamName };
+        });
+
+        setTargets(enrichedTargets);
+
+        const startVal = allData.config?.vote_start_at;
+        const endVal = allData.config?.vote_end_at;
+        const enabledVal = allData.config?.voting_enabled;
+        const status = checkVoteTime(startVal, endVal, enabledVal);
         setTimeStatus(status);
 
-        const voted = JSON.parse(localStorage.getItem("voted_items") || "{}");
-        setVotedItems(voted);
+        const serverVotes = await getMyVotes(voterId);
+        const localVoted = JSON.parse(localStorage.getItem("voted_items") || "{}");
+        const hasLocalRecord = Object.keys(localVoted).length > 0;
+
+        if (serverVotes.length === 0 && hasLocalRecord) {
+          console.log("[Vote] Server reset detected, clearing local data...");
+          clearVoterId();
+          setVotedItems({});
+          setVotingId(null);
+        } else {
+          const serverVotedMap: Record<string, string> = {};
+          serverVotes.forEach((v) => {
+            serverVotedMap[v.category] = v.target_id;
+          });
+
+          const mergedVoted = { ...localVoted, ...serverVotedMap };
+          setVotedItems(mergedVoted);
+          localStorage.setItem("voted_items", JSON.stringify(mergedVoted));
+        }
       } catch (e: any) {
         console.error("[Vote] Load error:", e.message);
-        message.error("データの読み込みに失敗しました");
+        message.error("データの読み込みに失敗しました。ネット環境を確認してください。");
       } finally {
         setLoading(false);
       }
@@ -50,16 +85,18 @@ export const useVoteData = () => {
       message.error(timeStatus.message);
       return;
     }
+
     setVotingId(target.id);
     try {
       await submitVote(target.id, target.category);
-      message.success(`${target.name} に投票しました！`);
 
       const newVoted = { ...votedItems, [target.category]: target.id };
       setVotedItems(newVoted);
       localStorage.setItem("voted_items", JSON.stringify(newVoted));
+
+      message.success(`${target.name}に投票しました！`);
     } catch (e: any) {
-      console.error("[Vote] Vote error:", e.message);
+      console.error("[Vote] Error:", e);
       message.error(e.message || "投票に失敗しました");
     } finally {
       setVotingId(null);
