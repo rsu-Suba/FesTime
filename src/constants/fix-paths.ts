@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 
 const docsDir = path.resolve(process.cwd(), "docs");
-const basePath = "/app";
+const basePath = "";
 
 function walk(dir: string): void {
   if (!fs.existsSync(dir)) {
