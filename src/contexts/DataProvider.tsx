@@ -15,6 +15,7 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useMapControl } from "@/contexts/MapContext";
 import { loadJSON } from "@/lib/Data/JSONLoader";
+import { CUSTOM_CONFIG } from "@/constants/custom.config";
 
 dayjs.extend(customParseFormat);
 
@@ -81,8 +82,8 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
     const currentInterval = config.poll_interval_ms || FETCH_INTERVAL_MS;
     const ttl = forceFull ? 0 : (currentInterval - 1000);
 
-    if (!isFullRefresh && isStallsLiveRef.current) {
-      console.log("[DataProvider] Skipping stalls-only polling (Realtime is active)");
+    if (!isFullRefresh && (!CUSTOM_CONFIG.features.booth || isStallsLiveRef.current)) {
+      console.log("[DataProvider] Skipping stalls-only polling (Feature disabled or Realtime is active)");
       refreshCycle.current = (refreshCycle.current + 1) % 24;
       return;
     }
@@ -96,7 +97,7 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
         lastFetchTime.current = Date.now();
         setLastUpdated(Date.now());
 
-        if (allData.s) {
+        if (allData.s && CUSTOM_CONFIG.features.booth) {
           setStalls(
             allData.s
               .map((row: any) => {

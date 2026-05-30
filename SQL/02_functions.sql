@@ -6,7 +6,9 @@ DECLARE
 BEGIN
   SELECT json_build_object(
     'config', (SELECT COALESCE(json_object_agg(key, value_int), '{}'::json) FROM app_settings)
+    -- @feature: booth
     , 's', (SELECT COALESCE(json_agg(json_build_object('i', id, 'c', crowd_level, 'l', stock_level)), '[]'::json) FROM stalls_status)
+    -- @end-feature
     -- @feature: news
     , 'n', (SELECT COALESCE(json_agg(json_build_object('i', id, 't', title, 'c', content, 'a', to_char(created_at AT TIME ZONE 'Asia/Tokyo', 'MMDDHH24MI'), 'r', edit_reason)), '[]'::json) FROM (SELECT * FROM news ORDER BY created_at DESC LIMIT 5) as news)
     -- @end-feature
@@ -21,6 +23,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+-- @feature: booth
 -- Get booth data
 CREATE OR REPLACE FUNCTION get_stalls_only()
 RETURNS json AS $$
@@ -33,6 +36,7 @@ BEGIN
   RETURN result;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+-- @end-feature
 
 -- @feature: vote
 -- Vote RPC

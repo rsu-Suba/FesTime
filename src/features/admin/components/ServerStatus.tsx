@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import { Typography, Space, Button, Tag } from "antd";
+import { CardBase, CardInside } from "@/components/Layout/CardComp";
 import { supabase } from "@/lib/Server/supabase";
 import CloudDoneIcon from "@mui/icons-material/CloudDone";
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -9,8 +10,8 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ErrorIcon from "@mui/icons-material/Error";
 import WarningIcon from "@mui/icons-material/Warning";
 import InfoIcon from "@mui/icons-material/Info";
-import { CardBase, CardInside } from "@/components/Layout/CardComp";
 import PCCanvasColumn from "@/components/Layout/PCCanvasColumn";
+import { CUSTOM_CONFIG } from "@/constants/custom.config";
 import styles from "./ServerStatus.module.css";
 
 const { Text } = Typography;
@@ -65,7 +66,14 @@ export default function ServerStatus() {
     }
 
     if (isFull) {
-      const tables = ["stalls_status", "news", "lost_items", "vote_targets", "votes"];
+      const tableDefinitions = [
+        { name: "stalls_status", enabled: CUSTOM_CONFIG.features.booth },
+        { name: "news", enabled: CUSTOM_CONFIG.features.news },
+        { name: "lost_items", enabled: CUSTOM_CONFIG.features.lost },
+        { name: "vote_targets", enabled: CUSTOM_CONFIG.features.vote },
+        { name: "votes", enabled: CUSTOM_CONFIG.features.vote },
+      ];
+      const tables = tableDefinitions.filter(t => t.enabled).map(t => t.name);
       for (const table of tables) {
         try {
           const { error } = await supabase.from(table).select("count").limit(1);

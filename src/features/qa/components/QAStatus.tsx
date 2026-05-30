@@ -41,7 +41,6 @@ export default function QAStatus() {
   return (
     <CardBase title={t("CardTitles.QA")}>
       <CardInside>
-        {isEventDay ? (
           <div className={styles.inputContainer}>
             <Input.TextArea
               placeholder={t("QA.Placeholder")}
@@ -65,21 +64,6 @@ export default function QAStatus() {
               {isSuccess ? t("QA.Sent") : t("QA.Send")}
             </Button>
           </div>
-        ) : (
-          <div className={styles.emptyText} style={{ textAlign: "left", color: "var(--text-color)" }}>
-            {t("QA.OutsideEvent")}
-            <div style={{ marginTop: "8px" }}>
-              <a 
-                href={CUSTOM_CONFIG.navigation.homepageUrl || "#"} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                style={{ color: "#1b7fea", textDecoration: "underline" }}
-              >
-                {CUSTOM_CONFIG.navigation.homepageUrl || "公式サイト"}
-              </a>
-            </div>
-          </div>
-        )}
         <p className={styles.sectionTitle}>{t("QA.AnsweredSection")}</p>
 
         {isLoading ? (

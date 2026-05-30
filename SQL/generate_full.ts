@@ -107,13 +107,15 @@ function generateFullSql() {
     const boothsRaw = JSON.parse(fs.readFileSync(boothJsonPath, "utf8"));
     const allBooths = Object.values(boothsRaw).flat() as any[];
 
-    content += "-- Stalls Status (Master Names)\n";
-    const stallValues = allBooths.map((b) => `(${b.id}, '${b.name.replace(/'/g, "''")}')`).join(", ");
-    content += `INSERT INTO stalls_status (id, stall_name) VALUES ${stallValues}\n`;
-    content += `ON CONFLICT (id) DO UPDATE SET stall_name = EXCLUDED.stall_name;\n\n`;
+    if (CUSTOM_CONFIG.features.booth) {
+      content += "-- Stalls Status (Master Names)\n";
+      const stallValues = allBooths.map((b) => `(${b.id}, '${b.name.replace(/'/g, "''")}')`).join(", ");
+      content += `INSERT INTO stalls_status (id, stall_name) VALUES ${stallValues}\n`;
+      content += `ON CONFLICT (id) DO UPDATE SET stall_name = EXCLUDED.stall_name;\n\n`;
 
-    content += `-- Reset stalls_status sequence (suppressing output)\n`;
-    content += `DO $$\nBEGIN\n  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'stalls_status_id_seq') THEN\n    PERFORM setval(pg_get_serial_sequence('stalls_status', 'id'), COALESCE(MAX(id), 1)) FROM stalls_status;\n  END IF;\nEND $$;\n\n`;
+      content += `-- Reset stalls_status sequence (suppressing output)\n`;
+      content += `DO $$\nBEGIN\n  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'stalls_status_id_seq') THEN\n    PERFORM setval(pg_get_serial_sequence('stalls_status', 'id'), COALESCE(MAX(id), 1)) FROM stalls_status;\n  END IF;\nEND $$;\n\n`;
+    }
 
     if (CUSTOM_CONFIG.features.vote) {
       content += "-- Vote Targets (Booths)\n";

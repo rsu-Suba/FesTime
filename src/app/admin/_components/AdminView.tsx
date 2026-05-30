@@ -12,6 +12,7 @@ import AspectDetector from "@/hooks/useAspectDetector";
 import useColumnDetector from "@/hooks/useColumnDetector";
 import { TabSelector } from "@/features/main/hooks/useTabSelector";
 import PCCanvasColumn from "@/components/Layout/PCCanvasColumn";
+import { CUSTOM_CONFIG } from "@/constants/custom.config";
 
 import MapRoundedIcon from "@mui/icons-material/MapRounded";
 import SettingsIcon from "@mui/icons-material/Settings";
@@ -216,7 +217,10 @@ export default function AdminView() {
         </Space>
       ),
     },
-  ];
+  ].filter(item => {
+    if (!CUSTOM_CONFIG.features.booth && (item.key === "3" || item.key === "4")) return false;
+    return true;
+  });
 
   const showBottomNav = isMobile && (isStallAdmin || activeTab === "1" || activeTab === "2");
 

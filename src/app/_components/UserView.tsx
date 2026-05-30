@@ -19,7 +19,6 @@ import InfoHeader from "@/components/Layout/InfoHeader";
 import BottomNavigator from "@/components/Layout/Bottom";
 import EventStatus from "@/features/event/components/EventStatus";
 import VoteStatus from "@/features/vote/components/VoteStatus";
-import BoothStatus from "@/features/booth/components/BoothStatus";
 import BoothStatusFavorite from "@/features/booth/components/BoothStatusFavorite";
 import ExhibitionStatus from "@/features/event/components/ExhibitionStatus";
 import NewsStatus from "@/features/news/components/NewsStatus";
@@ -30,6 +29,7 @@ import Homepage from "@/components/Layout/Homepage";
 import styles from "./UserView.module.css";
 import ClosedView from "@/app/_components/ClosedView";
 
+const BoothStatus = React.lazy(() => import("@/features/booth/components/BoothStatus"));
 const BusStatus = React.lazy(() => import("@/features/bus/components/BusStatus"));
 const LostStatus = React.lazy(() => import("@/features/lost/components/LostStatus"));
 const QAStatus = React.lazy(() => import("@/features/qa/components/QAStatus"));
@@ -84,10 +84,22 @@ export default function UserView() {
       Events: (CUSTOM_CONFIG.features.event && isEventDay) ? <EventStatus key="events" /> : null,
       Vote: CUSTOM_CONFIG.features.vote ? <VoteStatus key="vote" /> : null,
       Exhibition: CUSTOM_CONFIG.features.exhibition ? <ExhibitionStatus key="exhibition" /> : null,
-      BoothFav: <BoothStatusFavorite key="boothfav" />,
-      Booth: <BoothStatus key="booth" />,
-      Booth1: <BoothStatus key="booth1" split="first" />,
-      Booth2: <BoothStatus key="booth2" split="second" />,
+      BoothFav: CUSTOM_CONFIG.features.booth ? <BoothStatusFavorite key="boothfav" /> : null,
+      Booth: CUSTOM_CONFIG.features.booth ? (
+        <Suspense key="booth" fallback={<FallbackLoader text="Loading Booths..." />}>
+          <BoothStatus />
+        </Suspense>
+      ) : null,
+      Booth1: CUSTOM_CONFIG.features.booth ? (
+        <Suspense key="booth1" fallback={<FallbackLoader text="Loading Booths (1/2)..." />}>
+          <BoothStatus split="first" />
+        </Suspense>
+      ) : null,
+      Booth2: CUSTOM_CONFIG.features.booth ? (
+        <Suspense key="booth2" fallback={<FallbackLoader text="Loading Booths (2/2)..." />}>
+          <BoothStatus split="second" />
+        </Suspense>
+      ) : null,
       News: CUSTOM_CONFIG.features.news ? <NewsStatus key="news" /> : null,
       Bus: (CUSTOM_CONFIG.features.bus && isEventDay) ? (
         <Suspense key="bus" fallback={<FallbackLoader text="Loading Bus..." />}>

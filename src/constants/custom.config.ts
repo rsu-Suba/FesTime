@@ -29,6 +29,7 @@ export interface EventConfig {
   };
 
   features: {
+    booth: boolean;
     vote: boolean;
     bus: boolean;
     qa: boolean;
@@ -89,6 +90,7 @@ export const CUSTOM_CONFIG: EventConfig = {
   },
 
   features: {
+    booth: true,
     vote: true,
     bus: true,
     qa: true,

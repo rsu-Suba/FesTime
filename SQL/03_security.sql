@@ -1,9 +1,11 @@
 -- Security Policies (Grouped by Table/Feature)
 
 -- [stalls_status]
+-- @feature: booth
 ALTER TABLE stalls_status ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Allow Public Read Stalls" ON stalls_status FOR SELECT USING (true);
 CREATE POLICY "Allow Admin Update Stalls" ON stalls_status FOR UPDATE TO authenticated USING (auth.jwt()->>'email' = '{{ADMIN_EMAIL}}' OR auth.jwt()->>'email' = '{{BOOTH_ADMIN_EMAIL}}') WITH CHECK (auth.jwt()->>'email' = '{{ADMIN_EMAIL}}' OR auth.jwt()->>'email' = '{{BOOTH_ADMIN_EMAIL}}');
+-- @end-feature
 
 -- [news]
 -- @feature: news
