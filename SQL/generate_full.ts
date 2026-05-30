@@ -1,12 +1,76 @@
 import fs from "fs";
 import path from "path";
+import { CUSTOM_CONFIG } from "../src/constants/custom.config";
 
 const SQL_DIR = "./SQL";
 const DATA_DIR = "./public/data";
 const OUTPUT_FILE = path.join(SQL_DIR, "Full.sql");
 
+function filterContentByFeatures(content: string, features: Record<string, boolean>) {
+  const lines = content.split("\n");
+  const result: string[] = [];
+  let skipStack: string[] = [];
+
+  for (const line of lines) {
+    const startMatch = line.match(/--\s*@feature:\s*(\w+)/);
+    if (startMatch) {
+      const featureName = startMatch[1];
+      if (!features[featureName]) {
+        skipStack.push(featureName);
+      }
+      continue;
+    }
+
+    const endMatch = line.match(/--\s*@end-feature/);
+    if (endMatch) {
+      if (skipStack.length > 0) {
+        skipStack.pop();
+      }
+      continue;
+    }
+
+    if (skipStack.length === 0) {
+      result.push(line);
+    }
+  }
+
+  return result.join("\n");
+}
+
 function generateFullSql() {
-  console.log("Generating Full.sql...");
+  console.log("Generating Full.sql with features:", 
+    Object.entries(CUSTOM_CONFIG.features)
+      .filter(([_, enabled]) => enabled)
+      .map(([name]) => name)
+      .join(", ")
+  );
+
+  let adminEmail = "";
+  let boothEmail = "";
+  let boothPass = "";
+  const envPath = path.join(process.cwd(), ".env");
+
+  if (!fs.existsSync(envPath)) {
+    console.warn("Warning: .env file not found. Placeholders will not be replaced.");
+  } else {
+    const envContent = fs.readFileSync(envPath, "utf8");
+    const adminMatch = envContent.match(/NEXT_PUBLIC_ADMIN_EMAIL\s*=\s*(.*)/);
+    const boothMatch = envContent.match(/NEXT_PUBLIC_BOOTH_ADMIN_EMAIL\s*=\s*(.*)/);
+    const boothPassMatch = envContent.match(/BOOTH_SECRET\s*=\s*(.*)/);
+
+    if (adminMatch && adminMatch[1]) {
+      adminEmail = adminMatch[1].trim().replace(/['"]/g, "");
+    }
+    if (boothMatch && boothMatch[1]) {
+      boothEmail = boothMatch[1].trim().replace(/['"]/g, "");
+    }
+    if (boothPassMatch && boothPassMatch[1]) {
+      boothPass = boothPassMatch[1].trim().replace(/['"]/g, "");
+    }
+  }
+
+  if (adminEmail) console.log(`Using Admin Email: ${adminEmail}`);
+  if (boothEmail) console.log(`Using Booth Email: ${boothEmail}`);
 
   const baseFiles = [
     "00_storage.sql",
@@ -18,13 +82,21 @@ function generateFullSql() {
   ];
 
   let content = "-- Supabase Setup SQL\n";
-  content += `-- Generated at: ${new Date().toLocaleString()}\n\n\n`;
+  content += `-- Generated at: ${new Date().toLocaleString()}\n`;
+  content += `-- Features enabled: ${Object.entries(CUSTOM_CONFIG.features).filter(([_, v]) => v).map(([k]) => k).join(", ")}\n\n\n`;
 
   for (const file of baseFiles) {
     const filePath = path.join(SQL_DIR, file);
     if (fs.existsSync(filePath)) {
       content += `-- From ${file}\n`;
-      content += fs.readFileSync(filePath, "utf8") + "\n\n";
+      let fileContent = fs.readFileSync(filePath, "utf8");
+      fileContent = filterContentByFeatures(fileContent, CUSTOM_CONFIG.features);
+
+      fileContent = fileContent.replace(/{{ADMIN_EMAIL}}/g, adminEmail);
+      fileContent = fileContent.replace(/{{BOOTH_ADMIN_EMAIL}}/g, boothEmail);
+      fileContent = fileContent.replace(/{{BOOTH_PASSWORD}}/g, boothPass);
+      
+      content += fileContent + "\n\n";
     }
   }
 
@@ -41,21 +113,23 @@ function generateFullSql() {
     content += `ON CONFLICT (id) DO UPDATE SET stall_name = EXCLUDED.stall_name;\n\n`;
 
     content += `-- Reset stalls_status sequence (suppressing output)\n`;
-    content += `DO $$\nBEGIN\n  PERFORM setval(pg_get_serial_sequence('stalls_status', 'id'), COALESCE(MAX(id), 1)) FROM stalls_status;\nEND $$;\n\n`;
+    content += `DO $$\nBEGIN\n  IF EXISTS (SELECT 1 FROM pg_class WHERE relname = 'stalls_status_id_seq') THEN\n    PERFORM setval(pg_get_serial_sequence('stalls_status', 'id'), COALESCE(MAX(id), 1)) FROM stalls_status;\n  END IF;\nEND $$;\n\n`;
 
-    content += "-- Vote Targets (Booths)\n";
-    const voteBoothValues = allBooths
-      .map((b, i) => {
-        const id = String(b.id).padStart(2, "0");
-        return `('${id}', '${b.name.replace(/'/g, "''")}', 's', ${i + 1})`;
-      })
-      .join(", ");
-    content += `INSERT INTO vote_targets (id, name, category, display_order) VALUES ${voteBoothValues}\n`;
-    content += `ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, category = EXCLUDED.category, display_order = EXCLUDED.display_order;\n\n`;
+    if (CUSTOM_CONFIG.features.vote) {
+      content += "-- Vote Targets (Booths)\n";
+      const voteBoothValues = allBooths
+        .map((b, i) => {
+          const id = String(b.id).padStart(2, "0");
+          return `('${id}', '${b.name.replace(/'/g, "''")}', 's', ${i + 1})`;
+        })
+        .join(", ");
+      content += `INSERT INTO vote_targets (id, name, category, display_order) VALUES ${voteBoothValues}\n`;
+      content += `ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, category = EXCLUDED.category, display_order = EXCLUDED.display_order;\n\n`;
+    }
   }
 
   const exhibitionJsonPath = path.join(DATA_DIR, "exhibitions.json");
-  if (fs.existsSync(exhibitionJsonPath)) {
+  if (fs.existsSync(exhibitionJsonPath) && CUSTOM_CONFIG.features.vote && CUSTOM_CONFIG.features.exhibition) {
     const exhibitions = JSON.parse(fs.readFileSync(exhibitionJsonPath, "utf8")) as any[];
 
     content += "-- Vote Targets (Exhibitions)\n";

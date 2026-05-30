@@ -11,9 +11,11 @@
     *   一般ユーザー用（トップページ: `https://[your-domain]/app/`）。
     *   Spot-QR用: 管理画面 (「スポットQR生成」タブ) から生成した、校内に貼る周辺検索用。
 3.  **Supabase 側データの初期化:**
+    *   `src/constants/custom.config.ts`の`CUSTOM_CONFIG.features`にて必要な機能をtrue、そうでないものをfalseにします。
     *   `SQL/generate_full.ts`を実行し、Supabase セットアップ用の `SQL/Full.sql`を生成します。
-    *   `SQL/Full.sql` を実行し、Supabaseのデータベースを最新化します。
-    *   `SQL/Full/sql` 実行後に出力されたJSON文字列を`public/data/vote.json`にコピー&ペーストします。
+    *   `SQL/Full.sql` をSupabase SQL Editorで実行し、Supabaseのデータベースをセットアップします。
+    *   Optional: 投票機能がある場合
+        * `SQL/06_generate_votejson.sql` をSupabase SQL Editorで実行し、出力されたJSON文字列を`public/data/vote.json`にコピー&ペーストします。
 
 ## 当日
 
