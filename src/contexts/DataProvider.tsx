@@ -1,15 +1,16 @@
+// Supply data received from the server to the entire app
+
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
 import { DataContext, DataContextType } from "./DataContext";
-import { supabase } from "@/lib/Server/supabase";
 import { fetchAllData } from "@/lib/Server/baseApi";
-import { askQuestion } from "@/features/qa/api";
+import { askQuestion as askQuestionApi } from "@/features/qa/api";
 import { fetchStallsOnly } from "@/features/booth/api";
 import { StallStatus } from "@/features/booth/types";
 import { NewsItem } from "@/features/news/types";
 import { LostItem } from "@/features/lost/types";
-import { Question } from "@/features/qa/types";;
+import { Question } from "@/features/qa/types";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -19,10 +20,6 @@ import { CUSTOM_CONFIG } from "@/constants/custom.config";
 
 dayjs.extend(customParseFormat);
 
-const FETCH_INTERVAL_MS = 30000;
-const API_CACHE_TIME = 15000;
-const FULL_REFRESH_FREQ = 3;
-
 export const DataProvider = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -30,9 +27,8 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
 
   const isMapOpen = mapControl?.isMapOpen || false;
   const isBoothModalOpen = !!searchParams.get("booth-info");
-  const isVotePage = pathname?.startsWith("/vote");
   const isAdminPage = pathname?.includes("/admin") || pathname?.includes("/booth");
-  const isSuspended = (isMapOpen || isBoothModalOpen);
+  const isSuspended = isMapOpen || isBoothModalOpen;
 
   const [isLoading, setIsLoading] = useState(!isSuspended);
   const [stalls, setStalls] = useState<StallStatus[]>([]);
@@ -41,12 +37,12 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [config, setConfig] = useState<Record<string, number | null>>({});
   const [lastUpdated, setLastUpdated] = useState<number>(Date.now());
-  const [isStallsLive, setIsStallsLive] = useState(false);
-  const isStallsLiveRef = useRef(false);
+  const [isStallsLive] = useState(false);
 
   const [isJSONLoaded, setIsJSONLoaded] = useState(false);
   const staticStallNameMap = useRef<Record<number | string, string>>({});
 
+  // Load static booth master data
   useEffect(() => {
     loadJSON("booth").then((data: any[]) => {
       data.forEach((s) => {
@@ -64,7 +60,6 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
   const isInitialRefreshStarted = useRef(false);
   const refreshCycle = useRef(0);
   const lastFetchTime = useRef(0);
-  const stallNameMap = useRef<Record<number | string, string>>({});
 
   const parseCompactDate = (compactDateStr: string) => {
     if (!compactDateStr) return new Date().toISOString();
@@ -75,15 +70,15 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
 
   const performRefresh = async (forceFull = false) => {
     if (isSuspendedRef.current && !forceFull) {
-      console.log("[DataProvider] Refresh blocked (App is suspended or modal is open)");
       return;
     }
-    const isFullRefresh = forceFull || refreshCycle.current % FULL_REFRESH_FREQ === 0;
-    const currentInterval = config.poll_interval_ms || FETCH_INTERVAL_MS;
-    const ttl = forceFull ? 0 : (currentInterval - 1000);
 
-    if (!isFullRefresh && (!CUSTOM_CONFIG.features.booth || isStallsLiveRef.current)) {
-      console.log("[DataProvider] Skipping stalls-only polling (Feature disabled or Realtime is active)");
+    const fullRefreshFreq = CUSTOM_CONFIG.api.fullRefreshFrequency || 3;
+    const isFullRefresh = forceFull || refreshCycle.current % fullRefreshFreq === 0;
+    const currentInterval = config.poll_interval_ms || CUSTOM_CONFIG.api.pollingIntervalMs || 30000;
+    const ttl = forceFull ? 0 : Math.max(0, currentInterval - 1000);
+
+    if (!isFullRefresh && !CUSTOM_CONFIG.features.booth) {
       refreshCycle.current = (refreshCycle.current + 1) % 24;
       return;
     }
@@ -97,16 +92,14 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
         lastFetchTime.current = Date.now();
         setLastUpdated(Date.now());
 
+        // Update stalls
         if (allData.s && CUSTOM_CONFIG.features.booth) {
           setStalls(
             allData.s
               .map((row: any) => {
                 const id = row.i;
-                const name = staticStallNameMap.current[id] || row.n || stallNameMap.current[id];
-
+                const name = staticStallNameMap.current[id] || row.n;
                 if (!name) return null;
-
-                if (row.n) stallNameMap.current[id] = row.n;
 
                 return {
                   id: id,
@@ -118,8 +111,10 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
               .filter((s: StallStatus | null): s is StallStatus => s !== null),
           );
         }
+
+        // Update news, lost items, QA, and config on full refresh
         if (isFullRefresh) {
-          if (allData.n)
+          if (allData.n && CUSTOM_CONFIG.features.news) {
             setNews(
               allData.n.map((row: any) => ({
                 id: row.i,
@@ -129,7 +124,8 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
                 edit_reason: row.r,
               })),
             );
-          if (allData.l)
+          }
+          if (allData.l && CUSTOM_CONFIG.features.lost) {
             setLostItems(
               allData.l.map((row: any) => ({
                 id: row.i,
@@ -140,8 +136,8 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
                 edit_reason: row.r,
               })),
             );
-          /* 
-          if (allData.q)
+          }
+          if (allData.q && CUSTOM_CONFIG.features.qa) {
             setQuestions(
               allData.q.map((row: any) => ({
                 id: row.i,
@@ -151,7 +147,7 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
                 edit_reason: row.r,
               })),
             );
-          */
+          }
           if (allData.config) setConfig(allData.config);
         }
       }
@@ -163,50 +159,7 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  useEffect(() => {
-    setIsStallsLive(false);
-    isStallsLiveRef.current = false;
-    return;
-    // if (isSuspended) {
-    //   setIsStallsLive(false);
-    //   isStallsLiveRef.current = false;
-    //   return;
-    // }
-
-    // const stallChannel = supabase
-    //   .channel("stalls-changes")
-    //   .on("postgres_changes", { event: "UPDATE", schema: "public", table: "stalls_status" }, (payload) => {
-    //     const updatedRow = payload.new as any;
-    //     setStalls((currentStalls) =>
-    //       currentStalls.map((s) =>
-    //         s.id === updatedRow.id
-    //           ? { ...s, crowdLevel: updatedRow.crowd_level, stockLevel: updatedRow.stock_level }
-    //           : s,
-    //       ),
-    //     );
-    //   })
-    //   .subscribe((status) => {
-    //     const isLive = status === "SUBSCRIBED";
-    //     setIsStallsLive(isLive);
-    //     isStallsLiveRef.current = isLive;
-    //   });
-
-    // const tables = ["news"];
-    // const otherChannels = tables.map((tableName) =>
-    //   supabase
-    //     .channel(`${tableName}-changes`)
-    //     .on("postgres_changes", { event: "*", schema: "public", table: tableName }, () => {
-    //       performRefresh(true);
-    //     })
-    //     .subscribe(),
-    // );
-
-    // return () => {
-    //   supabase.removeChannel(stallChannel);
-    //   otherChannels.forEach((ch) => supabase.removeChannel(ch));
-    // };
-  }, [isSuspended]);
-
+  // Initial fetch
   useEffect(() => {
     if (isInitialRefreshStarted.current || !isJSONLoaded) return;
     const shouldFetchImmediately = isAdminPage || !isSuspended;
@@ -214,29 +167,32 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
 
     isInitialRefreshStarted.current = true;
     performRefresh(true);
-    return;
-    // const handleVisibilityChange = () => {
-    //   if (document.visibilityState === "visible") {
-    //     const now = Date.now();
-    //     const diff = now - lastFetchTime.current;
-    //     const currentInterval = config.poll_interval_ms || FETCH_INTERVAL_MS;
-    //     if (diff > currentInterval) {
-    //       if (!isSuspended) performRefresh(false);
-    //     }
-    //   }
-    // };
-    // document.addEventListener("visibilitychange", handleVisibilityChange);
-    // return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, [isSuspended, config.poll_interval_ms, isJSONLoaded]);
+  }, [isSuspended, isJSONLoaded, isAdminPage]);
 
+  // Refetch when tab becomes visible if polling is enabled
   useEffect(() => {
-    return;
-    // if (isSuspended) return;
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        const now = Date.now();
+        const diff = now - lastFetchTime.current;
+        const currentInterval = config.poll_interval_ms || CUSTOM_CONFIG.api.pollingIntervalMs || 30000;
+        if (currentInterval > 0 && diff > currentInterval && !isSuspended) {
+          performRefresh(false);
+        }
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [isSuspended, config.poll_interval_ms]);
 
-    // const interval = config.poll_interval_ms || FETCH_INTERVAL_MS;
-    // const jitter = Math.floor(Math.random() * 5000);
-    // const timer = setInterval(() => performRefresh(), interval + jitter);
-    // return () => clearInterval(timer);
+  // Periodic polling (only when pollingIntervalMs > 0)
+  useEffect(() => {
+    const interval = config.poll_interval_ms ?? CUSTOM_CONFIG.api.pollingIntervalMs;
+    if (!interval || interval <= 0 || isSuspended) return;
+
+    const jitter = Math.floor(Math.random() * 2000);
+    const timer = setInterval(() => performRefresh(false), interval + jitter);
+    return () => clearInterval(timer);
   }, [isSuspended, config.poll_interval_ms]);
 
   const value: DataContextType = {
@@ -248,8 +204,11 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
       fetchData: async () => performRefresh(true),
       handlePost: () => {},
       askQuestion: async (text: string) => {
-        console.warn("[DataProvider] askQuestion is currently disabled");
-        // await askQuestion(text);
+        if (!CUSTOM_CONFIG.features.qa) {
+          console.warn("[DataProvider] askQuestion is disabled in CUSTOM_CONFIG");
+          return;
+        }
+        await askQuestionApi(text);
       },
       lastUpdated,
       isStallsLive,

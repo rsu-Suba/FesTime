@@ -1,47 +1,36 @@
+// Fetch and cache static JSON master data from public/data/
+
 import { BASE_PATH } from "@/constants/paths";
 
-type JSONDataType = "booth"| "exhibitions" | "events" | "vote" | "bus" | "spots";
+export type JSONDataType = "booth" | "exhibitions" | "events" | "vote" | "bus" | "spots";
 
-const cache: Record<string, any> = {};
-const pendingRequests: Record<string, Promise<any> | null> = {};
+const cache: Partial<Record<JSONDataType, unknown>> = {};
+const pendingRequests: Partial<Record<JSONDataType, Promise<unknown>>> = {};
 
-const transformData = (type: JSONDataType, rawData: any) => {
-  switch (type) {
-    case "booth":
-    case "spots":
-    case "events":
-    case "bus":
-    case "exhibitions":
-      return rawData;
-    case "vote":
-    default:
-      return Array.isArray(rawData) ? rawData : [];
-  }
-};
-
+// Load json from public/data/ and cache with in-memory.
+// Concurrent requests for the same file are merged.
 export const loadJSON = async <T = any>(type: JSONDataType): Promise<T> => {
-  if (cache[type]) return cache[type];
+  if (cache[type]) return cache[type] as T;
   if (pendingRequests[type]) return pendingRequests[type] as Promise<T>;
 
   const request = (async () => {
     try {
-      const basePath = BASE_PATH;
-      const response = await fetch(`${basePath}/data/${type}.json`);
-      if (!response.ok) throw new Error(`Failed to load ${type}.json`);
+      const url = `${BASE_PATH || ""}/data/${type}.json`;
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`Failed to load ${type}.json (HTTP ${response.status})`);
 
-      const rawData = await response.json();
-      const processedData = transformData(type, rawData);
-
-      cache[type] = processedData;
-      pendingRequests[type] = null;
-      return processedData as T;
+      const data = await response.json();
+      cache[type] = data;
+      return data as T;
     } catch (error) {
-      pendingRequests[type] = null;
       console.error(`[JSONLoader] Error loading ${type}:`, error);
       throw error;
+    } finally {
+      delete pendingRequests[type];
     }
   })();
 
   pendingRequests[type] = request;
-  return request;
+  return request as Promise<T>;
 };
+

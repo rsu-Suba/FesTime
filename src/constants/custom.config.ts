@@ -1,3 +1,6 @@
+// A file that manages variables for the entire app.
+// "appTitle | organizationName" is displayed in the browser tab title.
+
 export interface EventConfig {
   identity: {
     eventName: string;
@@ -9,8 +12,8 @@ export interface EventConfig {
   };
   
   navigation: {
-    homepageUrl: string;
-    basePath: string;
+    homepageUrl: string; // URL for publishing the page
+    basePath: string;    // URL base path (from domain root)
   };
   
   theme: {
@@ -20,15 +23,15 @@ export interface EventConfig {
   };
   
   api: {
-    pollingIntervalMs: number;
-    fullRefreshFrequency: number;
+    pollingIntervalMs: number;    // Data server access interval [milliseconds] (Partial)
+    fullRefreshFrequency: number; // The cycle for receiving all data [int] (Full refresh interval = pollingIntervalMs * fullRefreshFrequency)
   };
 
   external: {
-    gaId?: string;
+    gaId?: string; //Google Analytics ID (recommend: write in .env file)
   };
 
-  features: {
+  features: { // Using features must be true [true | false]
     booth: boolean;
     vote: boolean;
     bus: boolean;

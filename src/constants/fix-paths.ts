@@ -1,3 +1,4 @@
+// Post-build script to enforce basePath in exported static files for GitHub Pages sub-directory hosting
 import * as fs from "fs";
 import * as path from "path";
 import { CUSTOM_CONFIG } from "./custom.config";
@@ -6,6 +7,7 @@ const docsDir = path.resolve(process.cwd(), "docs");
 const basePath = CUSTOM_CONFIG.navigation.basePath || "";
 const cleanBaseName = basePath.startsWith("/") ? basePath.slice(1) : basePath;
 
+// Recursively traverse docs/ directory and inject basePath into asset references
 function walk(dir: string): void {
   if (!fs.existsSync(dir)) {
     console.warn(`Directory not found: ${dir}`);
@@ -13,8 +15,8 @@ function walk(dir: string): void {
   }
   
   if (!basePath) {
-      console.log("basePath is empty in custom.config.ts, skipping path fix.");
-      return;
+    console.log("basePath is empty in custom.config.ts, skipping path fix.");
+    return;
   }
 
   const entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -28,16 +30,19 @@ function walk(dir: string): void {
       const content = fs.readFileSync(fullPath, "utf8");
       let newContent = content;
 
+      // Fix HTML src and href attributes
       if (entry.name.endsWith(".html")) {
         const regex = new RegExp(`(src|href)="\\/((?!${cleanBaseName}\\/|https?|ftp)[^"]+)"`, 'g');
         newContent = newContent.replace(regex, `$1="${basePath}/$2"`);
       }
 
+      // Fix static asset paths inside JS and JSON bundles
       if (/\.(js|json)$/.test(entry.name)) {
         const regex = new RegExp(`(["'])\\/(?!(?:${cleanBaseName}|https?|ftp)\\/)([^"']+\\.(?:png|jpg|jpeg|svg|gif|webp|json|js))(["'])`, 'g');
         newContent = newContent.replace(regex, `$1${basePath}/$2$3`);
       }
 
+      // Fix CSS url() references
       if (entry.name.endsWith(".css")) {
         newContent = newContent.replace(/url\(\s*["']?\/([^"'>)]+)["']?\s*\)/g, (match, p1) => {
           if (p1.startsWith(`${cleanBaseName}/`) || p1.startsWith(`/${cleanBaseName}/`)) return match;
@@ -57,4 +62,5 @@ function walk(dir: string): void {
 console.log(`Target directory: ${docsDir}`);
 walk(docsDir);
 console.log("Finished updating paths.");
+
 

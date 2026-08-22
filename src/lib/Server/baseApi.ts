@@ -1,5 +1,9 @@
+// API for whole app traffic
+// API for feature located within their respective dir
+
 import { supabase } from "./supabase";
 
+// Detail of cache
 interface CacheEntry<T> {
   data: T;
   time: number;
@@ -16,6 +20,7 @@ export interface AppSetting {
   updated_at: string;
 }
 
+// Delete invalid cache from session storage
 export const invalidateCache = (keys: string[] = ["all"]) => {
   keys.forEach((key) => {
     delete cache[key];
@@ -25,6 +30,7 @@ export const invalidateCache = (keys: string[] = ["all"]) => {
   });
 };
 
+// Get data
 export const fetchWithCache = async <T>(key: string, fetcher: () => Promise<T>, ttl: number): Promise<T> => {
   const now = Date.now();
   const pending = pendingRequests[key];
@@ -48,6 +54,7 @@ export const fetchWithCache = async <T>(key: string, fetcher: () => Promise<T>, 
     return cached.data;
   }
 
+  // Fetch from server on cache miss
   console.log(`[API] Network Request: ${key}`);
   const requestPromise = fetcher()
     .then((data) => {
@@ -71,6 +78,7 @@ export const fetchWithCache = async <T>(key: string, fetcher: () => Promise<T>, 
   return requestPromise as Promise<T>;
 };
 
+// Execute change, invalidate cache
 export const performMutation = async <T>(
   action: () => Promise<T>,
   cacheKeysToInvalidate: string[] = ["all"]
@@ -80,6 +88,7 @@ export const performMutation = async <T>(
   return result;
 };
 
+// Get all data on server via custom rpc
 export const fetchAllData = async (ttl: number = 0) => {
   return fetchWithCache(
     "all",

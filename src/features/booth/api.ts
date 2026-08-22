@@ -1,7 +1,9 @@
+// Booth status management API (fetching and updating crowd/stock levels)
 import { supabase } from "@/lib/Server/supabase";
 import { fetchWithCache, performMutation } from "@/lib/Server/baseApi";
 import { StallStatus } from "./types";
 
+// Fetch only booth status data with lightweight RPC (used for frequent polling)
 export const fetchStallsOnly = async (ttl: number = 0) => {
   return fetchWithCache(
     "stalls_only",
@@ -14,6 +16,7 @@ export const fetchStallsOnly = async (ttl: number = 0) => {
   );
 };
 
+// Update crowd and stock levels for a specific booth and invalidate cache
 export const updateStallStatus = async (stallName: string, updates: Partial<StallStatus>) => {
   return performMutation(async () => {
     console.log(`[API] Update Sent: Stall (${stallName})`);
@@ -27,3 +30,4 @@ export const updateStallStatus = async (stallName: string, updates: Partial<Stal
     return { success: true };
   }, ["all", "stalls_only"]);
 };
+

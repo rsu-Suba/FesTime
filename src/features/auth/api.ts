@@ -1,7 +1,10 @@
+// Authentication API for Admin and Booth Admin
 import { supabase } from "@/lib/Server/supabase";
 
+// Singleton promise to prevent concurrent duplicate login requests
 let loginPromise: Promise<any> | null = null;
 
+// Authenticate as overall admin using password
 export const loginAsAdmin = async (password: string) => {
   const email = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
   if (!email) throw new Error("Admin email is not configured");
@@ -29,6 +32,7 @@ export const loginAsAdmin = async (password: string) => {
   return loginPromise;
 };
 
+// Authenticate as booth admin using configured credentials
 export const loginAsStallAdmin = async (password: string) => {
   const email = process.env.NEXT_PUBLIC_BOOTH_ADMIN_EMAIL;
 
@@ -58,6 +62,7 @@ export const loginAsStallAdmin = async (password: string) => {
   return loginPromise;
 };
 
+// Fetch current Supabase auth session
 export const fetchSession = async () => {
   const { data, error } = await supabase.auth.getSession();
   if (error) {
@@ -66,3 +71,4 @@ export const fetchSession = async () => {
   }
   return data.session;
 };
+

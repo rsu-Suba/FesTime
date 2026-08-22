@@ -1,3 +1,5 @@
+// Manages user roles (user, admin, stall-admin) and auth state synchronization
+
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, Suspense, useCallback, useRef } from "react";
@@ -22,6 +24,7 @@ function RoleProviderInner({ children, initialRole = "user" }: { children: React
   const pathname = usePathname();
   const authAttempted = useRef(false);
 
+  // Determine initial role from URL pathname and localStorage
   const getInitialState = () => {
     const stallParam = searchParams.get("booth");
     const adminAuth = typeof window !== "undefined" ? localStorage.getItem("admin_auth") : null;
@@ -47,6 +50,7 @@ function RoleProviderInner({ children, initialRole = "user" }: { children: React
   const [state, setState] = useState<{ role: Role; assignedStall: string | null }>(getInitialState);
   const [isAuthenticating, setIsAuthenticating] = useState(true);
 
+  // Update active role and sync with localStorage / Supabase auth
   const setRole = useCallback((newRole: Role, stallName?: string) => {
     setState({ role: newRole, assignedStall: stallName || null });
     if (typeof window !== "undefined") {
@@ -77,6 +81,7 @@ function RoleProviderInner({ children, initialRole = "user" }: { children: React
     };
     checkInitialSession();
 
+    // Listen to Supabase auth events and reset role on sign out
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log(`[RoleContext] Auth event: ${event}`);
       

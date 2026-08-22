@@ -1,6 +1,8 @@
+// News bulletin management API
 import { supabase } from "@/lib/Server/supabase";
 import { performMutation } from "@/lib/Server/baseApi";
 
+// Publish a new news bulletin
 export const postNews = async (title: string, content: string) => {
   return performMutation(async () => {
     console.log("[API] Update Sent: New News");
@@ -10,6 +12,7 @@ export const postNews = async (title: string, content: string) => {
   });
 };
 
+// Edit an existing news bulletin with edit reason timestamp
 export const updateNews = async (id: string, updates: { title: string; content: string; reason: string }) => {
   return performMutation(async () => {
     console.log(`[API] Update Sent: Edit News (${id})`);
@@ -28,6 +31,7 @@ export const updateNews = async (id: string, updates: { title: string; content: 
   });
 };
 
+// Delete a news bulletin
 export const deleteNews = async (id: string) => {
   return performMutation(async () => {
     console.log(`[API] Update Sent: Delete News (${id})`);
@@ -36,3 +40,4 @@ export const deleteNews = async (id: string) => {
     return { success: true };
   });
 };
+

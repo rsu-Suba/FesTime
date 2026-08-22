@@ -1,6 +1,8 @@
+// Q&A submission and response management API
 import { supabase } from "@/lib/Server/supabase";
 import { performMutation } from "@/lib/Server/baseApi";
 
+// Submit a new anonymous question
 export const askQuestion = async (text: string) => {
   return performMutation(async () => {
     console.log("[API] Update Sent: New Question");
@@ -10,6 +12,7 @@ export const askQuestion = async (text: string) => {
   });
 };
 
+// Post or update an answer to a question
 export const replyToQuestion = async (id: string, answer: string, reason?: string) => {
   return performMutation(async () => {
     console.log(`[API] Update Sent: Reply/Edit Question (${id})`);
@@ -25,6 +28,7 @@ export const replyToQuestion = async (id: string, answer: string, reason?: strin
   });
 };
 
+// Delete a question
 export const deleteQuestion = async (id: string) => {
   return performMutation(async () => {
     console.log(`[API] Update Sent: Delete Question (${id})`);
@@ -33,3 +37,4 @@ export const deleteQuestion = async (id: string) => {
     return { success: true };
   });
 };
+
