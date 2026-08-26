@@ -1,5 +1,10 @@
 import React from "react";
+import type { Metadata } from "next";
 import Mermaid from "@/components/Mermaid";
+
+export const metadata: Metadata = {
+  title: "Supabase",
+};
 
 export default function SupabaseGuidePage() {
   return (

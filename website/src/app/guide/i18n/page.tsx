@@ -1,7 +1,10 @@
-"use client";
-
 import React from "react";
+import type { Metadata } from "next";
 import CodeBlock from "@/components/CodeBlock";
+
+export const metadata: Metadata = {
+  title: "Language",
+};
 
 export default function I18nGuidePage() {
   return (

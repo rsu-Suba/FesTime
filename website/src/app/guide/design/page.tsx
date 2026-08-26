@@ -1,6 +1,11 @@
 import React from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import CodeBlock from "@/components/CodeBlock";
+
+export const metadata: Metadata = {
+  title: "Design",
+};
 
 export default function DesignPage() {
   return (

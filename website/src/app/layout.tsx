@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import { MockProviders } from "@/mock/MockProviders";
 import { MobileMenuProvider } from "@/contexts/MobileMenuContext";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { DocsTitleManager } from "@/components/DocsTitleManager";
 import "@/styles/website.css";
 import "@festime/styles/global-app.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://festime.suba.pro"),
   title: {
-    default: "Start fast with FesTime",
+    default: "FesTime - Realtime Event Framework",
     template: "%s | FesTime",
   },
   description: "All-in-one real-time web application framework for school festivals and events. Crowd tracking, live voting, timetable, and interactive maps.",
@@ -54,6 +55,7 @@ export default function RootLayout({
         <MobileMenuProvider>
           <MockProviders>
             <ScrollToTop />
+            <DocsTitleManager />
             {children}
           </MockProviders>
         </MobileMenuProvider>

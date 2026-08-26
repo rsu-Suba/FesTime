@@ -1,6 +1,11 @@
 import React from "react";
+import type { Metadata } from "next";
 import CodeBlock from "@/components/CodeBlock";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "On-Premise",
+};
 
 export default function OnPremiseGuidePage() {
   return (

@@ -1,6 +1,11 @@
 import React from "react";
-import Link from "next/link";
+import type { Metadata } from "next";
 import CodeBlock from "@/components/CodeBlock";
+import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Custom",
+};
 
 export default function CustomizationPage() {
   return (
