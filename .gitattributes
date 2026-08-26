@@ -1,0 +1,4 @@
+# GitHub Linguist language statistics overrides
+# Ignore generated HTML/build artifacts from language statistics bar
+website/out/** linguist-generated=true
+docs/** linguist-generated=true
