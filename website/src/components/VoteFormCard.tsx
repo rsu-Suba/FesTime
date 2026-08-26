@@ -7,14 +7,13 @@ import ErrorIcon from '@mui/icons-material/Error';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 const DEMO_TARGETS = [
-  { id: "03", name: "たこ焼き", category: "s", team: "3年A組" },
-  { id: "01", name: "ポップコーン", category: "s", team: "1年B組" },
-  { id: "02", name: "チュロス", category: "s", team: "2年C組" },
-  { id: "04", name: "焼き鳥", category: "s", team: "PTA模擬店" },
-  { id: "34", name: "ロボット展示", category: "e", team: "ロボコン部" },
-  { id: "32", name: "フォトスポット", category: "e", team: "美術部" },
-  { id: "31", name: "写真展示", category: "e", team: "写真部" },
-  { id: "33", name: "学科展示", category: "e", team: "情報科" },
+  { id: "03", name: "たこ焼き", category: "s", team: "チームC" },
+  { id: "01", name: "ポップコーン", category: "s", team: "チームA" },
+  { id: "02", name: "チュロス", category: "s", team: "チームB" },
+  { id: "04", name: "焼き鳥", category: "s", team: "チームD" },
+  { id: "32", name: "フォトスポット", category: "e", team: "実行委員会" },
+  { id: "31", name: "写真展示", category: "e", team: "写真同好会" },
+  { id: "33", name: "学科展示", category: "e", team: "学科" },
 ];
 
 export default function VoteFormCard() {
@@ -22,7 +21,7 @@ export default function VoteFormCard() {
   const [category, setCategory] = useState<string>("s");
   const [votedItems, setVotedItems] = useState<Record<string, string>>({
     s: "03",
-    e: "34",
+    e: "",
   });
   const [votingId, setVotingId] = useState<string | null>(null);
 
@@ -72,10 +71,10 @@ export default function VoteFormCard() {
 
           <div style={{ fontSize: "1.15em", color: "var(--text-color)", textAlign: "center", margin: "10px 0" }}>
             <div style={{ display: "flex", alignItems: "center" }}>
-              {!votedEId ? <ErrorIcon style={{ color: "#ff4a56", marginRight: "4px" }} /> : <CheckCircleIcon style={{ color: "#43aa83", marginRight: "4px" }} />}展示: {!votedEId ? "投票していません！" : `${votedEName || "不明な項目"}`}
+              {!votedEId || !votedEName ? <ErrorIcon style={{ color: "#ff4a56", marginRight: "4px" }} /> : <CheckCircleIcon style={{ color: "#43aa83", marginRight: "4px" }} />}展示: {!votedEId || !votedEName ? "投票していません！" : `${votedEName}`}
             </div>
             <div style={{ display: "flex", alignItems: "center" }}>
-              {!votedSId ? <ErrorIcon style={{ color: "#ff4a56", marginRight: "4px" }} /> : <CheckCircleIcon style={{ color: "#43aa83", marginRight: "4px" }} />}模擬店: {!votedSId ? "投票していません！" : `${votedSName || "不明な項目"}`}
+              {!votedSId || !votedSName ? <ErrorIcon style={{ color: "#ff4a56", marginRight: "4px" }} /> : <CheckCircleIcon style={{ color: "#43aa83", marginRight: "4px" }} />}模擬店: {!votedSId || !votedSName ? "投票していません！" : `${votedSName}`}
             </div>
           </div>
 
