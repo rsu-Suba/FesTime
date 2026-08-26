@@ -1,5 +1,7 @@
 # dependencies
 /node_modules
+website/node_modules
+website/.next
 /.pnp
 .pnp.js
 
@@ -35,7 +37,6 @@ next-env.d.ts
 
 test
 database
-supabase
 
 src/constants/booth-ids.ts
 SQL/Full.sql
