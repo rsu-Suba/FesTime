@@ -6,6 +6,13 @@ import { usePathname } from "next/navigation";
 import { SIDEBAR_SECTIONS } from "./sidebarData";
 import { useMobileMenu } from "@/contexts/MobileMenuContext";
 
+function isPathMatch(currentPath?: string, targetSlug?: string) {
+  if (!currentPath || !targetSlug) return false;
+  const normCurrent = currentPath.replace(/\/$/, "");
+  const normTarget = targetSlug.replace(/\/$/, "");
+  return normCurrent === normTarget;
+}
+
 export function GuideSidebar() {
   const pathname = usePathname();
   const { isOpen: isMobileMenuOpen, close: closeMobileMenu } = useMobileMenu();
@@ -13,11 +20,11 @@ export function GuideSidebar() {
   const [openCategories, setOpenCategories] = useState<Record<string, boolean>>(() => {
     const state: Record<string, boolean> = {};
     const hasAnyActive = SIDEBAR_SECTIONS.some((cat) =>
-      cat.items.some((item) => pathname === item.slug)
+      cat.items.some((item) => isPathMatch(pathname, item.slug))
     );
 
     SIDEBAR_SECTIONS.forEach((cat, index) => {
-      const hasActive = cat.items.some((item) => pathname === item.slug);
+      const hasActive = cat.items.some((item) => isPathMatch(pathname, item.slug));
       if (hasAnyActive) {
         state[cat.id] = hasActive;
       } else {
@@ -30,7 +37,7 @@ export function GuideSidebar() {
   useEffect(() => {
     if (!pathname) return;
     SIDEBAR_SECTIONS.forEach((cat) => {
-      const hasActive = cat.items.some((item) => pathname === item.slug);
+      const hasActive = cat.items.some((item) => isPathMatch(pathname, item.slug));
       if (hasActive) {
         setOpenCategories((prev) => ({
           ...prev,
@@ -71,7 +78,7 @@ export function GuideSidebar() {
 
         {SIDEBAR_SECTIONS.map((cat) => {
           const isOpen = openCategories[cat.id] ?? false;
-          const hasActiveItem = cat.items.some((item) => pathname === item.slug);
+          const hasActiveItem = cat.items.some((item) => isPathMatch(pathname, item.slug));
 
           return (
             <div key={cat.id} className="sidebar-accordion-group">
@@ -100,7 +107,7 @@ export function GuideSidebar() {
               {isOpen && (
                 <ul className="sidebar-tree-list">
                   {cat.items.map((item) => {
-                    const isActive = pathname === item.slug;
+                    const isActive = isPathMatch(pathname, item.slug);
                     return (
                       <li key={item.slug} className="sidebar-tree-item">
                         <Link
