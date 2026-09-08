@@ -26,14 +26,14 @@
 
 ## Quick Start
 ### 1. プロジェクトファイル入手
-- 最も手軽 (推奨) : 最新のReleases](https://github.com/rsu-Suba/FesTime/releases) から `festime-app.zip` をダウンロードして解凍
+- 最も手軽 (推奨) : [最新のReleases](https://github.com/rsu-Suba/FesTime/releases) から `festime-app.zip` をダウンロードして解凍
 - または Git クローン : 
   ```bash
   git clone https://github.com/rsu-Suba/FesTime.git
   cd FesTime
   ```
 ### 2. 依存関係インストール & ローカル起動
-  ```basah
+  ```bash
   npm install
   npm run dev
   ```
