@@ -2,8 +2,8 @@
 
 import React from "react";
 import Link from "next/link";
-import { SiteHeader } from "@/components/SiteHeader";
-import { SiteFooter } from "@/components/SiteFooter";
+import { SiteHeader } from "@/components/docs/SiteHeader";
+import { SiteFooter } from "@/components/docs/SiteFooter";
 
 export default function NotFound() {
   return (

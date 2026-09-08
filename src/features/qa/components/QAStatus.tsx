@@ -1,21 +1,15 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import { Input, Button } from "antd";
-import dayjs from "dayjs";
 import { CardBase, CardInside, Divider } from "@/components/Layout/CardComp";
 import { useTheme } from "@/contexts/ThemeContext";
-import { useAppTime } from "@/contexts/TimeContext";
-import { usePathname } from "next/navigation";
 import { useQAData } from "../hooks/useQAData";
 import styles from "./QAStatus.module.css";
-import { CUSTOM_CONFIG } from "@/constants/custom.config";
 
 export default function QAStatus() {
   const { t } = useTranslation();
-  const { currentTime } = useAppTime();
-  const pathname = usePathname();
   const {
     text,
     setText,
@@ -29,14 +23,6 @@ export default function QAStatus() {
 
   const theme = useTheme();
   const isDark = theme?.isDarkMode || false;
-
-  const isEventDay = useMemo(() => {
-    if (pathname?.startsWith("/demo")) return true;
-    const now = dayjs();
-    const start = dayjs(CUSTOM_CONFIG.identity.eventStartDate).startOf("day");
-    const end = dayjs(CUSTOM_CONFIG.identity.eventEndDate).endOf("day");
-    return now.isAfter(start) && now.isBefore(end);
-  }, [pathname]);
 
   return (
     <CardBase title={t("CardTitles.QA")}>

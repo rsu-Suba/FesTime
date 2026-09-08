@@ -1,8 +1,8 @@
 import React from "react";
 import Link from "next/link";
-import HeroCardsClient from "@/components/HeroCardsClient";
-import { SiteHeader } from "@/components/SiteHeader";
-import { SiteFooter } from "@/components/SiteFooter";
+import HeroCardsClient from "@/components/docs/HeroCardsClient";
+import { SiteHeader } from "@/components/docs/SiteHeader";
+import { SiteFooter } from "@/components/docs/SiteFooter";
 
 export default function HomePage() {
   return (

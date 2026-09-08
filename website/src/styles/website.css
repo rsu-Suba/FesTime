@@ -906,6 +906,36 @@ a {
     border-top: 1px solid var(--ft-border);
 }
 
+.preview-full-bleed {
+    margin-left: -12.5%;
+    margin-right: -12.5%;
+    width: calc(100% + 25%) !important;
+    max-width: none !important;
+    padding-left: 24px;
+    padding-right: 24px;
+    box-sizing: border-box;
+}
+
+@media (max-width: 1200px) {
+    .preview-full-bleed {
+        margin-left: -24px;
+        margin-right: -24px;
+        width: calc(100% + 48px) !important;
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+}
+
+@media (max-width: 900px) {
+    .preview-full-bleed {
+        margin-left: -16px;
+        margin-right: -16px;
+        width: calc(100% + 32px) !important;
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+}
+
 .doc-article {
     display: flex;
     flex-direction: column;
@@ -996,20 +1026,38 @@ a {
     color: var(--ft-text-secondary);
 }
 
-.doc-section ul,
-.doc-article ul,
-.guide-article ul,
-.docs-content-inner ul,
-.doc-section ol,
-.doc-article ol,
-.guide-article ol,
-.docs-content-inner ol {
+.doc-section > ul,
+.doc-article > ul,
+.guide-article > ul,
+.docs-content-inner > ul,
+.doc-section > ol,
+.doc-article > ol,
+.guide-article > ol,
+.docs-content-inner > ol,
+.doc-section ul:not([class*="ant-"]),
+.doc-article ul:not([class*="ant-"]),
+.guide-article ul:not([class*="ant-"]),
+.docs-content-inner ul:not([class*="ant-"]),
+.doc-section ol:not([class*="ant-"]),
+.doc-article ol:not([class*="ant-"]),
+.guide-article ol:not([class*="ant-"]),
+.docs-content-inner ol:not([class*="ant-"]) {
     padding-left: 20px;
     display: flex;
     flex-direction: column;
     gap: 8px;
     font-size: 14px;
     color: var(--ft-text-secondary);
+}
+
+.ant-tabs-nav-list,
+.ant-tabs-nav-operations,
+:where(.ant-tabs, .ant-pagination, .ant-dropdown, .ant-menu, .ant-select) ul {
+    padding-left: 0 !important;
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 0 !important;
+    list-style: none !important;
 }
 .doc-section ol,
 .doc-article ol,

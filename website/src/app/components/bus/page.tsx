@@ -2,8 +2,8 @@
 
 import React from "react";
 import dynamic from "next/dynamic";
-import { ComponentDocCard } from "@/components/ComponentDocCard";
-import CodeBlock from "@/components/CodeBlock";
+import { ComponentDocCard } from "@/components/docs/ComponentDocCard";
+import CodeBlock from "@/components/docs/CodeBlock";
 
 const BusStatus = dynamic(() => import("@festime/features/bus/components/BusStatus"), { ssr: false });
 

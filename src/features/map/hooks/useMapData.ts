@@ -87,11 +87,16 @@ export const useMapData = (initialPlace: string | null | undefined) => {
 
   useEffect(() => {
     setIsReady(false);
+    let active = true;
     const img = new window.Image();
     img.src = getPath(mapList[activeIndex].src);
     img.onload = () => {
+      if (!active) return;
       setRatio(img.width / img.height);
       setIsReady(true);
+    };
+    return () => {
+      active = false;
     };
   }, [activeIndex]);
 

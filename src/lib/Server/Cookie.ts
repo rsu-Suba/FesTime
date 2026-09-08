@@ -14,5 +14,3 @@ export function setCookie(key: string, value: string | number | boolean, days: n
   expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
   document.cookie = `${key}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
 }
-
-export const postCookie = setCookie;

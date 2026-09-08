@@ -2,9 +2,9 @@
 
 import React from "react";
 import dynamic from "next/dynamic";
-import { ComponentDocCard } from "@/components/ComponentDocCard";
-import { RoleProviderWrapper } from "@/components/RoleProviderWrapper";
-import CodeBlock from "@/components/CodeBlock";
+import { ComponentDocCard } from "@/components/docs/ComponentDocCard";
+import { RoleProviderWrapper } from "@/components/docs/RoleProviderWrapper";
+import CodeBlock from "@/components/docs/CodeBlock";
 
 const BoothStatus = dynamic(() => import("@festime/features/booth/components/BoothStatus"), { ssr: false });
 const BoothManager = dynamic(() => import("@festime/features/booth/components/BoothManager"), { ssr: false });

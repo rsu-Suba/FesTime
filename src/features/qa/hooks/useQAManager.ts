@@ -39,12 +39,7 @@ export function useQAManager(): QAManagerHook {
 
   const questions = (fetchedData?.questions as Question[]) || [];
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      fetchData();
-    }, 2 * 60 * 1000);
-    return () => clearInterval(timer);
-  }, [fetchData]);
+
 
   const handleReply = async (id: string): Promise<void> => {
     const answer = replies[id];
@@ -73,7 +68,7 @@ export function useQAManager(): QAManagerHook {
     }
   };
 
-  const handleDelete = (id: string, text: string): void => {
+  const handleDelete = (id: string, _text?: string): void => {
     modal.confirm({
       title: "削除の確認",
       content: "この質問を削除してもよろしいですか？",

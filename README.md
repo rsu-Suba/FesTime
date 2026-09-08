@@ -1,10 +1,42 @@
-# FesTime
+<p align="center">
+  <a href="https://festime.suba.pro" target="_blank">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="./assets/logo-dark.svg">
+      <source media="(prefers-color-scheme: light)" srcset="./assets/logo-light.svg">
+      <img alt="FesTime" src="./assets/logo-light.svg" width="480" height="100" style="max-width: 100%;">
+    </picture>
+  </a>
+</p>
 
-FesTime は、文化祭やイベントでのリアルタイムな情報共有を可能にするための汎用型オープンソース・フレームワークです。
+  FesTime は、文化祭やイベントでのリアルタイムな情報共有を可能にするための汎用型オープンソース・フレームワークです。
 模擬店の混雑状況、イベントの進行状況、交通機関の案内、投票、落とし物管理など、イベント運営に必要な機能が含まれています。
 
-![デモ画像](./demo.png "demo.png")
----
+[公式ドキュメントページ](https://festime.suba.pro) |
+[FesTime Studio (カスタマイズツール)](https://festime.suba.pro/studio) |
+[最新版アプリZip](https://github.com/rsu-Suba/FesTime/releases)
+
+![デモ画像](./assets/demo.png "demo.png")
+
+## FesTime Studio
+コードを編集せず、Webブラウザ上でイベント設定・データ入力・レイアウトを直感的にカスタマイズできる **FesTime Studio** を提供しています。
+- ステップごとに対話的にアプリの設定が可能
+- ブラウザ上でリアルタイムプレビュー確認
+- CSV / JSONからのマスターデータインポート
+- カスタム設定の自動適用パッチ生成
+
+## Quick Start
+### 1. プロジェクトファイル入手
+- 最も手軽 (推奨) : 最新のReleases](https://github.com/rsu-Suba/FesTime/releases) から `festime-app.zip` をダウンロードして解凍
+- または Git クローン : 
+  ```bash
+  git clone https://github.com/rsu-Suba/FesTime.git
+  cd FesTime
+  ```
+### 2. 依存関係インストール & ローカル起動
+  ```basah
+  npm install
+  npm run dev
+  ```
 
 ## 主な機能
 
@@ -13,7 +45,6 @@ FesTime は、文化祭やイベントでのリアルタイムな情報共有を
   - **模擬店リアルタイム状況**: 全模擬店の「混雑度」と「在庫状況」を信号機形式（緑・黄・赤）で一覧表示。Supabase Realtime により、現地に行かなくても最新の状況を即座に把握できます。
   - **現在地連動・周辺情報表示**: 校内に掲示された QR コードを読み取ることで、そのスポット周辺の模擬店や展示の情報を即座にピックアップして表示します。
   - **インタラクティブなキャンパスマップ**: Leaflet を活用し、模擬店、展示、イベントステージの場所を直感的に探すことができます。
-  - **アクティビティコレクション**: 訪れたブースをチケットのように記録。集めたチケットはスタック形式のリストで振り返ることができます。
 
 - #### 時間関係
   - **タイムテーブル & 進行状況表示**: ステージ企画の進行状況をバー形式で可視化。直近の予定に絞るフィルタリング機能も搭載。
@@ -65,7 +96,7 @@ FesTime は第18回 北斗祭のために開発されました。2日間の開�
 ---
 
 ### ドキュメント
-このプロジェクトを利用するには[詳細ドキュメント](./documents/README.md)を参照してください。
+このプロジェクトを利用するには[詳細ドキュメントページ](https://festime.suba.pro/guide/getting-started/)を参照してください。
 
 ### 貢献・ライセンス
 

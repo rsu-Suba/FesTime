@@ -1,6 +1,4 @@
-import { useRef, useLayoutEffect, useState, useEffect } from "react";
-import { useRole } from "@/contexts/RoleContext";
-import { useTheme } from "@/contexts/ThemeContext";
+import { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 
 function CardBase(props: {
@@ -35,18 +33,10 @@ function CardTitle(props: { title: string }) {
   );
 }
 
-function SubList(props: { SubNumber?: number; children: React.ReactNode }) {
-  let link: React.ReactNode = null;
-  if (props.SubNumber !== undefined) {
-    if (true) {
-      link = <a className="linkButton" href={""} target="_blank" rel="noreferrer"></a>;
-    }
-  }
-
+function SubList(props: { children: React.ReactNode }) {
   return (
     <div>
       <div style={{ display: "flex", alignItems: "center", width: "100%" }}>{props.children}</div>
-      {link}
     </div>
   );
 }

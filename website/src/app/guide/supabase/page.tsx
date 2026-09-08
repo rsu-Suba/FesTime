@@ -1,6 +1,6 @@
 import React from "react";
 import type { Metadata } from "next";
-import Mermaid from "@/components/Mermaid";
+import Mermaid from "@/components/docs/Mermaid";
 
 export const metadata: Metadata = {
   title: "Supabase",

@@ -11,7 +11,7 @@ import { useBoothStatus } from "@/features/booth/hooks/useBoothStatus";
 import { TrafficLight, BoothLegend, BoothTableHeader, commonStyles as cStyles } from "./BoothCommon";
 import styles from "./BoothStatus.module.css";
 
-export default function BoothStatus({ split }: { split?: "first" | "second" }) {
+export default function BoothStatus({ split, onlyFavorites }: { split?: "first" | "second"; onlyFavorites?: boolean }) {
   const { t } = useTranslation();
   const {
     isLoading,
@@ -25,7 +25,9 @@ export default function BoothStatus({ split }: { split?: "first" | "second" }) {
     handleCrowdClick,
     handleStockClick,
     canEdit,
-  } = useBoothStatus(split);
+  } = useBoothStatus(split, onlyFavorites);
+
+  if (!mounted) return null;
 
   const LiveStatus = (
     <div className={styles.liveStatus}>
@@ -39,17 +41,25 @@ export default function BoothStatus({ split }: { split?: "first" | "second" }) {
     </div>
   );
 
+  const title = onlyFavorites
+    ? t("CardTitles.BOOTHFAV")
+    : `${t("CardTitles.BOOTH")}${split === "first" ? " (1/2)" : split === "second" ? " (2/2)" : ""}`;
+
   return (
     <CardBase
-      title={`${t("CardTitles.BOOTH")}${split === "first" ? " (1/2)" : split === "second" ? " (2/2)" : ""}`}
+      title={title}
       SubjectUpdated={LiveStatus}
       disableTapAnimation={true}
     >
       <CardInside>
-        <BoothLegend />
-        <BoothTableHeader />
+        {(!onlyFavorites || statuses.length > 0) && (
+          <>
+            {!onlyFavorites && <BoothLegend />}
+            <BoothTableHeader />
+          </>
+        )}
 
-        {isLoading || !mounted ? (
+        {isLoading ? (
           <SubList>
             <p className={styles.loadingText}>Loading...</p>
           </SubList>
@@ -99,7 +109,7 @@ export default function BoothStatus({ split }: { split?: "first" | "second" }) {
           ))
         ) : (
           <SubList>
-            <p className={styles.loadingText}>{t("Booth.NoData")}</p>
+            <p className={styles.loadingText}>{onlyFavorites ? t("Booth.NoFav") : t("Booth.NoData")}</p>
           </SubList>
         )}
       </CardInside>

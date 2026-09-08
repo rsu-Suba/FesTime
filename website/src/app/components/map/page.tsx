@@ -2,11 +2,11 @@
 
 import React from "react";
 import dynamic from "next/dynamic";
-import { ComponentDocCard } from "@/components/ComponentDocCard";
-import CodeBlock from "@/components/CodeBlock";
+import { ComponentDocCard } from "@/components/docs/ComponentDocCard";
+import CodeBlock from "@/components/docs/CodeBlock";
 
-import MapSpotDemoCard from "@/components/MapSpotDemoCard";
-import MapSectionDemoCard from "@/components/MapSectionDemoCard";
+import MapSpotDemoCard from "@/components/docs/MapSpotDemoCard";
+import MapSectionDemoCard from "@/components/docs/MapSectionDemoCard";
 
 export default function MapDocPage() {
   return (

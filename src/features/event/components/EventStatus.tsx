@@ -2,11 +2,11 @@
 
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Radio } from "antd";
 import { CardBase, CardInside, Divider } from "@/components/Layout/CardComp";
 import { motion, AnimatePresence } from "framer-motion";
 import MusicPlayerBar from "@/components/Layout/MusicPlayerBar";
 import EventBusyRoundedIcon from "@mui/icons-material/EventBusyRounded";
+import { FilterSwitcher } from "@/components/Misc/FilterSwitcher";
 import { useEventData } from "../hooks/useEventData";
 import styles from "./EventStatus.module.css";
 
@@ -14,45 +14,10 @@ export default function EventStatus() {
   const { t } = useTranslation();
   const { filterMode, setFilterMode, filteredEvents, currentTime, getEventTime, newIndexMap } = useEventData();
 
-  const FilterSwitcher = (
-    <div className={styles.switcher}>
-      <Radio.Group
-        value={filterMode}
-        onChange={(e) => setFilterMode(e.target.value)}
-        buttonStyle="solid"
-        size="small"
-        className={styles.radioGroup}
-      >
-        <Radio.Button
-          value="hour"
-          className={`${styles.radioBtn} ${styles.radioBtnHour}`}
-          style={{
-            background: filterMode === "hour" ? "var(--text-color)" : "var(--card-color)",
-            color: filterMode === "hour" ? "var(--card-color)" : "var(--text-color)",
-            borderRadius: "999px 0 0 999px"
-          }}
-        >
-          {t("Bus.FilterHour")}
-        </Radio.Button>
-        <Radio.Button
-          value="all"
-          className={`${styles.radioBtn} ${styles.radioBtnAll}`}
-          style={{
-            background: filterMode === "hour" ? "var(--card-color)" : "var(--text-color)",
-            color: filterMode === "hour" ? "var(--text-color)" : "var(--card-color)",
-            borderRadius: "0 999px 999px 0"
-          }}
-        >
-          {t("Bus.FilterAll")}
-        </Radio.Button>
-      </Radio.Group>
-    </div>
-  );
-
   return (
     <CardBase
       title={t("CardTitles.EVENTS")}
-      SubjectUpdated={FilterSwitcher}
+      SubjectUpdated={<FilterSwitcher value={filterMode} onChange={setFilterMode} />}
       disableTapAnimation={filterMode === "all"}
     >
       <CardInside>

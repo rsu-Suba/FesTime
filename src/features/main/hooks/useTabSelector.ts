@@ -1,16 +1,8 @@
 export const TabSelector = (props: number) => {
-    const canvas = document.getElementById("canvas") as HTMLElement;
-    if (!canvas) return;
-
-    if (props === 0) {
-        canvas.style.left = "0";
-    } else if (props === 1) {
+    const canvas = document.getElementById("canvas");
+    if (canvas) {
         canvas.style.transition = "0.3s";
-        canvas.style.left = "-100%";
-    } else if (props === 2) {
-        canvas.style.left = "-200%";
-    } else if (props === 3) {
-        canvas.style.left = "-300%";
+        canvas.style.left = `-${props * 100}%`;
     }
 };
 

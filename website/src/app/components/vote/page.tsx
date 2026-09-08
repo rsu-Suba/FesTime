@@ -2,12 +2,12 @@
 
 import React from "react";
 import dynamic from "next/dynamic";
-import { ComponentDocCard } from "@/components/ComponentDocCard";
-import { RoleProviderWrapper } from "@/components/RoleProviderWrapper";
-import CodeBlock from "@/components/CodeBlock";
+import { ComponentDocCard } from "@/components/docs/ComponentDocCard";
+import { RoleProviderWrapper } from "@/components/docs/RoleProviderWrapper";
+import CodeBlock from "@/components/docs/CodeBlock";
 
-const VoteFormCard = dynamic(() => import("@/components/VoteFormCard"), { ssr: false });
-const MockVoteAdmin = dynamic(() => import("@/components/MockVoteAdmin"), { ssr: false });
+const VoteFormCard = dynamic(() => import("@/components/docs/VoteFormCard"), { ssr: false });
+const MockVoteAdmin = dynamic(() => import("@/components/docs/MockVoteAdmin"), { ssr: false });
 
 export default function VoteDocPage() {
   return (

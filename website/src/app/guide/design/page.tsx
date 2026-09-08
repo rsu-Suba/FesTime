@@ -1,7 +1,7 @@
 import React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import CodeBlock from "@/components/CodeBlock";
+import CodeBlock from "@/components/docs/CodeBlock";
 
 export const metadata: Metadata = {
   title: "Design",

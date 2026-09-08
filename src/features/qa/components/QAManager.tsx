@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Input, Button, Modal, Spin } from "antd";
+import { Input, Button, Spin } from "antd";
 import { CardBase, CardInside, Divider } from "@/components/Layout/CardComp";
 import dayjs from "dayjs";
 import "@/features/admin/components/Admin.css";

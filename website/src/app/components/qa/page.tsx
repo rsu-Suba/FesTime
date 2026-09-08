@@ -2,9 +2,9 @@
 
 import React from "react";
 import dynamic from "next/dynamic";
-import { ComponentDocCard } from "@/components/ComponentDocCard";
-import { RoleProviderWrapper } from "@/components/RoleProviderWrapper";
-import CodeBlock from "@/components/CodeBlock";
+import { ComponentDocCard } from "@/components/docs/ComponentDocCard";
+import { RoleProviderWrapper } from "@/components/docs/RoleProviderWrapper";
+import CodeBlock from "@/components/docs/CodeBlock";
 
 const QAStatus = dynamic(() => import("@festime/features/qa/components/QAStatus"), { ssr: false });
 const QAManager = dynamic(() => import("@festime/features/qa/components/QAManager"), { ssr: false });

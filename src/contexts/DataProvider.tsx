@@ -199,10 +199,8 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
     api: {
       fetchedData: { stalls, news, lostItems, questions, config },
       isLoading,
-      isPosting: false,
       error: "",
       fetchData: async () => performRefresh(true),
-      handlePost: () => {},
       askQuestion: async (text: string) => {
         if (!CUSTOM_CONFIG.features.qa) {
           console.warn("[DataProvider] askQuestion is disabled in CUSTOM_CONFIG");
@@ -213,7 +211,6 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
       lastUpdated,
       isStallsLive,
     },
-    work: {} as any,
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

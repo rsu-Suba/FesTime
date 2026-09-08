@@ -22,6 +22,7 @@ import QrCodeIcon from "@mui/icons-material/QrCode";
 import CloudQueueIcon from "@mui/icons-material/CloudQueue";
 
 import styles from "./AdminView.module.css";
+import { calculateAdminLayout, calculateStallAdminLayout } from "@/features/main/utils/layoutUtils";
 
 const NewsManager = React.lazy(() => import("@/features/news/components/NewsManager"));
 const BoothManager = React.lazy(() => import("@/features/booth/components/BoothManager"));
@@ -76,35 +77,56 @@ export default function AdminView() {
   };
 
   const layout = useMemo(() => {
-    const managers = {
-      News: (
+    const managers: Record<string, React.ReactNode> = {
+      NewsManager: (
         <Suspense key="news-mgr" fallback={<FallbackLoader />}>
           <NewsManager />
         </Suspense>
       ),
-      QA: (
+      QAManager: (
         <Suspense key="qa-mgr" fallback={<FallbackLoader />}>
           <QAManager />
         </Suspense>
       ),
-      Lost: (
+      LostManager: (
         <Suspense key="lost-mgr" fallback={<FallbackLoader />}>
           <LostManager />
         </Suspense>
       ),
-      Booth: (
+      BoothManager: (
         <Suspense key="booth-mgr" fallback={<FallbackLoader />}>
           <BoothManager />
+        </Suspense>
+      ),
+      News: (
+        <Suspense key="news-status-mgr" fallback={<FallbackLoader />}>
+          <NewsStatus />
+        </Suspense>
+      ),
+      // Aliases
+      QA: (
+        <Suspense key="qa-mgr-alias" fallback={<FallbackLoader />}>
+          <QAManager />
+        </Suspense>
+      ),
+      Lost: (
+        <Suspense key="lost-mgr-alias" fallback={<FallbackLoader />}>
+          <LostManager />
+        </Suspense>
+      ),
+      Booth: (
+        <Suspense key="booth-mgr-alias" fallback={<FallbackLoader />}>
+          <BoothManager />
+        </Suspense>
+      ),
+      NewsStatus: (
+        <Suspense key="news-status-alias" fallback={<FallbackLoader />}>
+          <NewsStatus />
         </Suspense>
       ),
       QR: (
         <Suspense key="qr-mgr" fallback={<FallbackLoader />}>
           <BoothQRManager />
-        </Suspense>
-      ),
-      NewsStatus: (
-        <Suspense key="news-status-mgr" fallback={<FallbackLoader />}>
-          <NewsStatus />
         </Suspense>
       ),
       Status: (
@@ -116,6 +138,9 @@ export default function AdminView() {
     };
 
     if (isStallAdmin) {
+      if (typeof calculateStallAdminLayout === "function") {
+        return calculateStallAdminLayout(managers, { isMobile, columns });
+      }
       if (isMobile) {
         return [[managers.Booth], [managers.NewsStatus]];
       }
@@ -131,18 +156,13 @@ export default function AdminView() {
     }
 
     if (activeTab === "1") {
+      if (typeof calculateAdminLayout === "function") {
+        return calculateAdminLayout(managers, { isMobile, columns });
+      }
       if (isMobile) {
         return [[managers.News], [managers.QA], [managers.Lost], [managers.Settings]];
       }
-      if (columns >= 3) {
-        return [[managers.News], [managers.QA], [managers.Lost]];
-      }
-      return [
-        [managers.News],
-        [
-          React.cloneElement(managers.Lost as React.ReactElement, { key: "lost-col" }),
-        ],
-      ];
+      return [[managers.News], [managers.QA], [managers.Lost]];
     }
 
     if (activeTab === "2") {

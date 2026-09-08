@@ -14,6 +14,11 @@ export interface EventConfig {
   navigation: {
     homepageUrl: string; // URL for publishing the page
     basePath: string;    // URL base path (from domain root)
+    tabs?: {
+      id: string;
+      label: string;
+      icon: string;
+    }[];
   };
   
   theme: {

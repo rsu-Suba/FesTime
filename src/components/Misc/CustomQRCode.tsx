@@ -43,54 +43,14 @@ export default function CustomQRCode({
         ...style,
       }}
     >
-      <div
-        style={{
-          position: "absolute",
-          top: "8px",
-          left: "8px",
-          width: `${lSize}px`,
-          height: `${lSize}px`,
-          borderLeft: `${lThickness}px solid ${colors.c1}`,
-          borderTop: `${lThickness}px solid ${colors.c1}`,
-          borderTopLeftRadius: "24px",
-        }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          top: "8px",
-          right: "8px",
-          width: `${lSize}px`,
-          height: `${lSize}px`,
-          borderRight: `${lThickness}px solid ${colors.c2}`,
-          borderTop: `${lThickness}px solid ${colors.c2}`,
-          borderTopRightRadius: "24px",
-        }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          bottom: "8px",
-          left: "8px",
-          width: `${lSize}px`,
-          height: `${lSize}px`,
-          borderLeft: `${lThickness}px solid ${colors.c3}`,
-          borderBottom: `${lThickness}px solid ${colors.c3}`,
-          borderBottomLeftRadius: "24px",
-        }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          bottom: "8px",
-          right: "8px",
-          width: `${lSize}px`,
-          height: `${lSize}px`,
-          borderRight: `${lThickness}px solid ${colors.c4}`,
-          borderBottom: `${lThickness}px solid ${colors.c4}`,
-          borderBottomRightRadius: "24px",
-        }}
-      />
+      {[
+        { top: 8, left: 8, borderLeft: `${lThickness}px solid ${colors.c1}`, borderTop: `${lThickness}px solid ${colors.c1}`, borderTopLeftRadius: 24 },
+        { top: 8, right: 8, borderRight: `${lThickness}px solid ${colors.c2}`, borderTop: `${lThickness}px solid ${colors.c2}`, borderTopRightRadius: 24 },
+        { bottom: 8, left: 8, borderLeft: `${lThickness}px solid ${colors.c3}`, borderBottom: `${lThickness}px solid ${colors.c3}`, borderBottomLeftRadius: 24 },
+        { bottom: 8, right: 8, borderRight: `${lThickness}px solid ${colors.c4}`, borderBottom: `${lThickness}px solid ${colors.c4}`, borderBottomRightRadius: 24 },
+      ].map((pos, i) => (
+        <div key={i} style={{ position: "absolute", width: lSize, height: lSize, ...pos }} />
+      ))}
       <QRCode value={value} size={size} bordered={false} errorLevel="H" type={type} icon={icon} iconSize={iconSize} />
     </div>
   );

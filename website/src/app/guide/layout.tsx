@@ -2,9 +2,9 @@
 
 import React, { useRef, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { GuideSidebar } from "@/components/GuideSidebar";
-import { SiteHeader } from "@/components/SiteHeader";
-import { SiteFooter } from "@/components/SiteFooter";
+import { GuideSidebar } from "@/components/docs/GuideSidebar";
+import { SiteHeader } from "@/components/docs/SiteHeader";
+import { SiteFooter } from "@/components/docs/SiteFooter";
 
 export default function GuideLayout({
   children,

@@ -1,15 +1,10 @@
 import { Switch } from "antd";
 import { useTheme } from "@/contexts/ThemeContext";
-import DarkClick from "@/lib/Data/DarkClick";
 
 export default function DarkSwitch() {
    const theme = useTheme();
-   if (!theme) return <></>;
+   if (!theme) return null;
    const { isDarkMode, setIsDarkMode } = theme;
 
-   const handleClick = () => {
-      setIsDarkMode(!isDarkMode);
-      DarkClick(isDarkMode);
-   };
-   return <Switch checked={isDarkMode} onClick={handleClick}></Switch>;
+   return <Switch checked={isDarkMode} onChange={(checked) => setIsDarkMode(checked)} />;
 }

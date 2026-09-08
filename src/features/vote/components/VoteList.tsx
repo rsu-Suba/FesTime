@@ -1,7 +1,7 @@
 import React from "react";
 import { Button, Tag, Space, Spin } from "antd";
 import { VoteTarget } from "@/features/vote/utils/voteUtils";
-import { CardBase, CardInside, Divider } from "@/components/Layout/CardComp";
+import { Divider } from "@/components/Layout/CardComp";
 import styles from "./VoteList.module.css";
 
 interface VoteListProps {

@@ -7,7 +7,7 @@ import { calculateLayout } from "@/features/main/utils/layoutUtils";
 import { CUSTOM_CONFIG } from "@/constants/custom.config";
 import { useTranslation } from "react-i18next";
 import { useData } from "@/contexts/DataContext";
-import { Drawer } from "vaul";
+import { Drawer } from "antd";
 import { usePathname } from "next/navigation";
 import dayjs from "dayjs";
 import { motion, AnimatePresence } from "framer-motion";
@@ -79,7 +79,6 @@ export default function UserView() {
 
   const cards = useMemo(
     () => ({
-      Spot: null,
       HotNews: (hasHotNews && CUSTOM_CONFIG.features.news) ? <NewsStatus key="hotnews" onlyHot={true} hotTime={hotTime} /> : null,
       Events: (CUSTOM_CONFIG.features.event && isEventDay) ? <EventStatus key="events" /> : null,
       Vote: CUSTOM_CONFIG.features.vote ? <VoteStatus key="vote" /> : null,
@@ -183,75 +182,17 @@ export default function UserView() {
         )}
       </Suspense>
 
-      <Drawer.Root open={isSettingsOpen} onOpenChange={setIsSettingsOpen} modal={false}>
-        <Drawer.Portal>
-          <AnimatePresence>
-            {isSettingsOpen && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onPointerDown={() => setIsSettingsOpen(false)}
-                style={{
-                  position: "fixed",
-                  inset: 0,
-                  backgroundColor: "rgba(0, 0, 0, 0.4)",
-                  backdropFilter: "blur(4px)",
-                  zIndex: 10001,
-                  pointerEvents: "auto",
-                  cursor: "pointer",
-                }}
-              />
-            )}
-          </AnimatePresence>
-
-          <Drawer.Content
-            style={{
-              backgroundColor: "var(--mainCanvas-color)",
-              display: "flex",
-              flexDirection: "column",
-              borderRadius: "24px 24px 0 0",
-              height: "auto",
-              maxHeight: "85vh",
-              position: "fixed",
-              bottom: 0,
-              left: 0,
-              right: 0,
-              zIndex: 10002,
-              padding: "20px",
-              paddingTop: "10px",
-              outline: "none",
-              boxShadow: "0 -10px 40px rgba(0,0,0,0.2)",
-            }}
-          >
-            <div
-              style={{
-                width: "40px",
-                height: "4px",
-                borderRadius: "2px",
-                backgroundColor: "rgba(128, 128, 128, 0.3)",
-                margin: "0 auto 15px",
-                flexShrink: 0,
-              }}
-            />
-            <div style={{ overflowY: "auto", paddingBottom: "30px" }}>
-              <Drawer.Title
-                style={{
-                  margin: "0 0 20px",
-                  fontSize: "18px",
-                  fontWeight: "bold",
-                  textAlign: "center",
-                  color: "var(--text-color)",
-                }}
-              >
-                {t("CardTitles.SETTINGS", "設定")}
-              </Drawer.Title>
-              <Drawer.Description style={{ display: "none" }}>アプリケーションの設定を変更します。</Drawer.Description>
-              <Settings />
-            </div>
-          </Drawer.Content>
-        </Drawer.Portal>
-      </Drawer.Root>
+      <Drawer
+        title={t("CardTitles.SETTINGS", "設定")}
+        placement="bottom"
+        open={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        height="85vh"
+        style={{ borderRadius: "24px 24px 0 0", backgroundColor: "var(--mainCanvas-color)" }}
+        getContainer={() => document.getElementById("app-root") || document.body}
+      >
+        <Settings onClose={() => setIsSettingsOpen(false)} />
+      </Drawer>
 
       {!isMobile && (
         <div className="PCCanvas">

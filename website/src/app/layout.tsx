@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { MockProviders } from "@/mock/MockProviders";
 import { MobileMenuProvider } from "@/contexts/MobileMenuContext";
-import { ScrollToTop } from "@/components/ScrollToTop";
-import { DocsTitleManager } from "@/components/DocsTitleManager";
+import { ScrollToTop } from "@/components/docs/ScrollToTop";
+import { DocsTitleManager } from "@/components/docs/DocsTitleManager";
 import "@/styles/website.css";
 import "@festime/styles/global-app.css";
 

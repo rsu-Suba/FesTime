@@ -304,35 +304,29 @@ export function MockProviders({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem("festime_theme");
-      if (stored === "dark") {
-        setIsDarkMode(true);
-        document.documentElement.setAttribute("data-theme", "dark");
-        DarkClick(true);
-      } else if (stored === "light") {
-        setIsDarkMode(false);
-        document.documentElement.setAttribute("data-theme", "light");
-        DarkClick(false);
-      } else {
-        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        setIsDarkMode(prefersDark);
-        document.documentElement.setAttribute("data-theme", prefersDark ? "dark" : "light");
-        DarkClick(prefersDark);
-      }
-    } catch {
+    const stored = localStorage.getItem("festime_theme");
+    if (stored === "dark") {
+      setIsDarkMode(true);
+      document.documentElement.setAttribute("data-theme", "dark");
+      DarkClick(true);
+    } else if (stored === "light") {
+      setIsDarkMode(false);
+      document.documentElement.setAttribute("data-theme", "light");
+      DarkClick(false);
+    } else {
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      setIsDarkMode(prefersDark);
+      document.documentElement.setAttribute("data-theme", prefersDark ? "dark" : "light");
+      DarkClick(prefersDark);
     }
   }, []);
 
   const toggleDarkMode = useCallback(() => {
     setIsDarkMode((prev) => {
       const next = !prev;
-      try {
-        localStorage.setItem("festime_theme", next ? "dark" : "light");
-        document.documentElement.setAttribute("data-theme", next ? "dark" : "light");
-        DarkClick(next);
-      } catch {
-      }
+      localStorage.setItem("festime_theme", next ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", next ? "dark" : "light");
+      DarkClick(next);
       return next;
     });
   }, []);

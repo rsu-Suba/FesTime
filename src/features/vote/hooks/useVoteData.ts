@@ -3,12 +3,16 @@ import { App } from "antd";
 import { fetchAllData } from "@/lib/Server/baseApi";
 import { submitVote, getMyVotes, getVoterId, clearVoterId } from "@/features/vote/api";
 import { loadJSON } from "@/lib/Data/JSONLoader";
+import { useData } from "@/contexts/DataContext";
 import { VoteTarget, TimeStatus, checkVoteTime } from "@/features/vote/utils/voteUtils";
+import { CUSTOM_CONFIG } from "@/constants/custom.config";
 
 export const useVoteData = () => {
   const { message } = App.useApp();
+  const { api: { fetchedData } } = useData();
   const [targets, setTargets] = useState<VoteTarget[]>([]);
-  const [category, setCategory] = useState<string>("e");
+  const defaultCat = CUSTOM_CONFIG.features?.exhibition ? "e" : "s";
+  const [category, setCategory] = useState<string>(defaultCat);
   const [loading, setLoading] = useState(true);
   const [votedItems, setVotedItems] = useState<Record<string, string>>({});
   const [votingId, setVotingId] = useState<string | null>(null);
@@ -20,7 +24,7 @@ export const useVoteData = () => {
         console.log("[Vote] Fetching targets and config...");
         const [targetsRes, allData, voterId, boothRes, exhibitionsRes] = await Promise.all([
           loadJSON("vote"),
-          fetchAllData(),
+          fetchedData?.config ? Promise.resolve(fetchedData) : fetchAllData(),
           getVoterId(),
           loadJSON("booth"),
           loadJSON("exhibitions"),

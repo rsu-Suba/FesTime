@@ -1,24 +1,12 @@
 // Voting API with anonymous voter ID generation and client rate limiting
 import { supabase } from "@/lib/Server/supabase";
+import { getCookie, setCookie } from "@/lib/Server/Cookie";
 
 // Retrieve or generate a unique voter UUID, synced between LocalStorage and Cookies
 export const getVoterId = async () => {
   if (typeof window === "undefined") return "";
 
   const COOKIE_NAME = "voter_id_v2";
-
-  const getCookie = (name: string) => {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop()?.split(";").shift();
-    return null;
-  };
-
-  const setCookie = (name: string, value: string) => {
-    const expires = new Date();
-    expires.setFullYear(expires.getFullYear() + 1);
-    document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
-  };
 
   let localId = localStorage.getItem("voter_id");
   const cookieId = getCookie(COOKIE_NAME);
@@ -27,19 +15,11 @@ export const getVoterId = async () => {
     localId = cookieId;
     localStorage.setItem("voter_id", localId);
   } else if (localId && !cookieId) {
-    setCookie(COOKIE_NAME, localId);
+    setCookie(COOKIE_NAME, localId, 365);
   } else if (!localId && !cookieId) {
-    if (typeof crypto !== "undefined" && crypto.randomUUID) {
-      localId = crypto.randomUUID();
-    } else {
-      localId = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-        const r = (Math.random() * 16) | 0;
-        const v = c === "x" ? r : (r & 0x3) | 0x8;
-        return v.toString(16);
-      });
-    }
+    localId = crypto.randomUUID();
     localStorage.setItem("voter_id", localId);
-    setCookie(COOKIE_NAME, localId);
+    setCookie(COOKIE_NAME, localId, 365);
   }
 
   return localId || "";

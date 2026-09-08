@@ -2,9 +2,9 @@
 
 import React, { useRef, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { ComponentSidebar } from "@/components/ComponentSidebar";
-import { SiteHeader } from "@/components/SiteHeader";
-import { SiteFooter } from "@/components/SiteFooter";
+import { ComponentSidebar } from "@/components/docs/ComponentSidebar";
+import { SiteHeader } from "@/components/docs/SiteHeader";
+import { SiteFooter } from "@/components/docs/SiteFooter";
 
 export default function ComponentsLayout({
   children,

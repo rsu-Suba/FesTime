@@ -80,10 +80,8 @@ export function DemoProvider({ children }: { children: ReactNode }) {
         },
       },
       isLoading: false,
-      isPosting: false,
       error: "",
       fetchData: async () => {},
-      handlePost: (mode: number) => {},
       askQuestion: async (text: string) => {
         setDemoQuestions((prev) => [
           {
@@ -99,7 +97,6 @@ export function DemoProvider({ children }: { children: ReactNode }) {
       lastUpdated: 20260523,
       isStallsLive: true,
     },
-    work: {} as any,
   };
 
   const demoRole = {

@@ -1,12 +1,13 @@
 "use client";
 
 import React from "react";
-import { Select, Tag, Radio } from "antd";
+import { Select, Tag } from "antd";
 import { useTranslation } from "react-i18next";
 import { CardBase, CardInside, Divider } from "@/components/Layout/CardComp";
 import dayjs from "dayjs";
 import { motion, AnimatePresence } from "framer-motion";
 import NoTransferRoundedIcon from "@mui/icons-material/NoTransferRounded";
+import { FilterSwitcher } from "@/components/Misc/FilterSwitcher";
 import { useBusData, BusTrip } from "../hooks/useBusData";
 import styles from "./BusStatus.module.css";
 
@@ -25,39 +26,10 @@ export default function BusStatus() {
     newIndexMap,
   } = useBusData();
 
-  const FilterSwitcher = (
-    <div className={styles.switcher}>
-      <Radio.Group value={filterMode} onChange={(e) => setFilterMode(e.target.value)} buttonStyle="solid" size="small">
-        <Radio.Button
-          value="hour"
-          className={`${styles.radioBtn} ${styles.radioBtnHour}`}
-          style={{
-            background: filterMode === "hour" ? "var(--text-color)" : "var(--card-color)",
-            color: filterMode === "hour" ? "var(--card-color)" : "var(--text-color)",
-            borderRadius: "999px 0 0 999px",
-          }}
-        >
-          {t("Bus.FilterHour")}
-        </Radio.Button>
-        <Radio.Button
-          value="all"
-          className={`${styles.radioBtn} ${styles.radioBtnAll}`}
-          style={{
-            background: filterMode === "hour" ? "var(--card-color)" : "var(--text-color)",
-            color: filterMode === "hour" ? "var(--text-color)" : "var(--card-color)",
-            borderRadius: "0 999px 999px 0",
-          }}
-        >
-          {t("Bus.FilterAll")}
-        </Radio.Button>
-      </Radio.Group>
-    </div>
-  );
-
   return (
     <CardBase
       title={t("CardTitles.BUS")}
-      SubjectUpdated={FilterSwitcher}
+      SubjectUpdated={<FilterSwitcher value={filterMode} onChange={setFilterMode} />}
       disableTapAnimation={filterMode === "all"}
     >
       <CardInside>

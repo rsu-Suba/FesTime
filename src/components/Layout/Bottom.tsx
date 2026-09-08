@@ -10,10 +10,40 @@ import QuestionAnswerRoundedIcon from "@mui/icons-material/QuestionAnswerRounded
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import VisibilityRoundedIcon from "@mui/icons-material/VisibilityRounded";
 import MoreHorizRoundedIcon from "@mui/icons-material/MoreHorizRounded";
+import MapRoundedIcon from "@mui/icons-material/MapRounded";
+import InfoRoundedIcon from "@mui/icons-material/InfoRounded";
+import EventNoteRoundedIcon from "@mui/icons-material/EventNoteRounded";
+import DirectionsBusRoundedIcon from "@mui/icons-material/DirectionsBusRounded";
+import LocalCafeRoundedIcon from "@mui/icons-material/LocalCafeRounded";
+import CameraAltRoundedIcon from "@mui/icons-material/CameraAltRounded";
+import FastfoodRoundedIcon from "@mui/icons-material/FastfoodRounded";
+import TheaterComedyRoundedIcon from "@mui/icons-material/TheaterComedyRounded";
+
 import { useNavigation } from "./useNavigation";
 import styles from "./Bottom.module.css";
+import { CUSTOM_CONFIG } from "@/constants/custom.config";
 
-const NAV_CONFIG = {
+export const ICON_MAP: Record<string, React.ElementType> = {
+  HomeRounded: HomeRoundedIcon,
+  StorefrontRounded: StorefrontRoundedIcon,
+  VisibilityRounded: VisibilityRoundedIcon,
+  WidgetsRounded: WidgetsRoundedIcon,
+  NewspaperRounded: NewspaperRoundedIcon,
+  QuestionAnswerRounded: QuestionAnswerRoundedIcon,
+  SearchRounded: SearchRoundedIcon,
+  MapRounded: MapRoundedIcon,
+  InfoRounded: InfoRoundedIcon,
+  EventNoteRounded: EventNoteRoundedIcon,
+  DirectionsBusRounded: DirectionsBusRoundedIcon,
+  LocalCafeRounded: LocalCafeRoundedIcon,
+  FastfoodRounded: FastfoodRoundedIcon,
+  CameraAltRounded: CameraAltRoundedIcon,
+  TheaterComedyRounded: TheaterComedyRoundedIcon,
+  MoreHorizRounded: MoreHorizRoundedIcon,
+  SettingsRounded: SettingsRoundedIcon,
+};
+
+export const NAV_CONFIG = {
   user: [
     { key: "0", icon: HomeRoundedIcon, label: "Main" },
     { key: "1", icon: StorefrontRoundedIcon, label: "Booth" },
@@ -39,6 +69,12 @@ const NAV_CONFIG = {
 
 export type BottomMode = keyof typeof NAV_CONFIG;
 
+export interface BottomNavItem {
+  key: string;
+  icon: React.ElementType;
+  label: string;
+}
+
 interface BottomNavigatorProps {
   mode: BottomMode;
   value: string;
@@ -46,6 +82,7 @@ interface BottomNavigatorProps {
   isMoving: boolean;
   setIsMoving: (val: boolean) => void;
   disabled?: boolean;
+  customItems?: BottomNavItem[];
 }
 
 export default function BottomNavigator({
@@ -55,8 +92,18 @@ export default function BottomNavigator({
   isMoving,
   setIsMoving,
   disabled,
+  customItems,
 }: BottomNavigatorProps) {
-  const items = NAV_CONFIG[mode];
+  let configItems: BottomNavItem[] = NAV_CONFIG[mode];
+  if (mode === "user" && CUSTOM_CONFIG.navigation.tabs && CUSTOM_CONFIG.navigation.tabs.length > 0) {
+    configItems = CUSTOM_CONFIG.navigation.tabs.map((t, i) => ({
+      key: i.toString(),
+      icon: ICON_MAP[t.icon] || MoreHorizRoundedIcon,
+      label: t.label
+    }));
+  }
+
+  const items = customItems || configItems;
   const tabCount = items.length;
 
   const { indicatorRef, footerRef, triggerMove, indicatorStyles, slotWidth, SIDE_PADDING } = useNavigation({

@@ -40,14 +40,7 @@ export const useBusData = () => {
   const [toStop, setToStop] = useState(CUSTOM_CONFIG.bus?.defaultToStop || "");
   const [filterMode, setFilterMode] = useState<"hour" | "all">("hour");
 
-  useEffect(() => {
-    if (CUSTOM_CONFIG.bus?.defaultFromStop && !fromStop) {
-        setFromStop(CUSTOM_CONFIG.bus.defaultFromStop);
-    }
-    if (CUSTOM_CONFIG.bus?.defaultToStop && !toStop) {
-        setToStop(CUSTOM_CONFIG.bus.defaultToStop);
-    }
-  }, [fromStop, toStop]);
+
 
   const normalizeTime = (t: string) => {
     if (!t) return "";

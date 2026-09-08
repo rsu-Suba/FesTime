@@ -16,15 +16,12 @@ export type DataContextType = {
   api: {
     fetchedData: FetchedData | null;
     isLoading: boolean;
-    isPosting: boolean;
     error: string;
     fetchData: () => Promise<void>;
-    handlePost: (mode: number) => void;
     askQuestion: (text: string) => Promise<void>;
     lastUpdated: number;
     isStallsLive: boolean;
   };
-  work: any;
 };
 
 export const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -32,7 +29,7 @@ export const DataContext = createContext<DataContextType | undefined>(undefined)
 export const useData = () => {
   const context = useContext(DataContext);
   if (!context) {
-    throw new Error("useData must be used within a RoleProvider");
+    throw new Error("useData must be used within a DataProvider");
   }
   return context;
 };
