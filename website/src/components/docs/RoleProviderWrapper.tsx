@@ -39,7 +39,7 @@ export function RoleProviderWrapper({
         token: colorPrimary ? { colorPrimary, colorInfo: colorPrimary } : undefined,
       }}
     >
-      <App>
+      <App component={false}>
         <RoleContext.Provider value={value}>{children}</RoleContext.Provider>
       </App>
     </ConfigProvider>

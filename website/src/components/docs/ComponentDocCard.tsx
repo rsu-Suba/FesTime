@@ -44,7 +44,7 @@ export function ComponentDocCard({
       {(card1 || card2) && (
         <div className="doc-cards-section">
           {hasTwoCards ? (
-            <div className="card-two-columns">
+            <div className="card-two-columns" id="app-root-cards">
               <div className="card-stack">
                 <Suspense fallback={<CardSkeleton />}>
                   {card1}
@@ -57,10 +57,12 @@ export function ComponentDocCard({
               </div>
             </div>
           ) : (
-            <div style={{ maxWidth: "480px" }}>
-              <Suspense fallback={<CardSkeleton height="180px" />}>
-                {card1 || preview}
-              </Suspense>
+            <div id="app-root-cards">
+              <div className="card-stack">
+                <Suspense fallback={<CardSkeleton height="180px" />}>
+                  {card1 || preview}
+                </Suspense>
+              </div>
             </div>
           )}
         </div>

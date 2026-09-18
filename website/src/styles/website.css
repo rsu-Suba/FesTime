@@ -610,6 +610,7 @@ a {
     box-shadow: var(--ft-card-shadow) !important;
     border: 1px solid var(--ft-border) !important;
     background-color: var(--ft-card-bg) !important;
+    border-radius: 28px !important;
     overflow: hidden;
     margin: 0 !important;
     transition:
@@ -617,6 +618,33 @@ a {
         box-shadow 0.2s ease;
 }
 .card-stack > div:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12) !important;
+}
+.card-stack > .ant-app {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+}
+.card-stack > .ant-app:hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
+.card-stack > .ant-app > .carddiv {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-shadow: var(--ft-card-shadow) !important;
+    border: 1px solid var(--ft-border) !important;
+    background-color: var(--ft-card-bg) !important;
+    border-radius: 28px !important;
+    overflow: hidden;
+    margin: 0 !important;
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+.card-stack > .ant-app > .carddiv:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12) !important;
 }
@@ -984,7 +1012,7 @@ a {
 .doc-cards-section {
     width: calc(100% + 32px);
     margin: -4px -16px 0;
-    padding: 12px 16px 40px;
+    padding: 24px;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
 }

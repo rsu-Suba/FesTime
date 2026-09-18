@@ -43,3 +43,5 @@ SQL/Full.sql
 
 festime-app.zip
 festime-app/
+
+build-zip.sh
