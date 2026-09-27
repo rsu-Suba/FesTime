@@ -24,6 +24,15 @@ export const SEARCH_INDEX: SearchDocItem[] = [
     keywords: ["インストール", "セットアップ", "初期設定", "開始", "quickstart", "setup", "導入", "custom.config.ts", "環境変数"],
   },
   {
+    id: "cases",
+    title: "運用実績・導入事例",
+    category: "guide",
+    categoryLabel: "Getting Started",
+    slug: "/guide/cases",
+    description: "実際の文化祭・イベントでの運用実績、アクセス統計、現場運用のレポート。",
+    keywords: ["実績", "運用実績", "導入事例", "事例", "東窓祭", "北斗祭", "アクセス数", "PV", "ユーザー数", "レポート", "case"],
+  },
+  {
     id: "faq",
     title: "FAQ",
     category: "guide",

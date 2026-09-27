@@ -31,6 +31,12 @@ const ALL_GUIDES = [
     icon: "",
     desc: "人気投票の3重多重投票防止 (IPハッシュ・RPC) 、PostgreSQL RLSによる権限分離。",
   },
+  {
+    slug: "cases",
+    title: "運用実績 & 導入事例",
+    icon: "",
+    desc: "第23回東窓祭や第18回北斗祭のアクセス統計・本番稼働レポートと現場の知見。",
+  },
 ];
 
 export default function GuideIndexPage() {

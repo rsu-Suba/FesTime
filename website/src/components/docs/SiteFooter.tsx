@@ -6,6 +6,7 @@ export function SiteFooter() {
     <footer className="footer">
       <div className="footer-links">
         <Link href="/guide/getting-started">クイックスタート</Link>
+        <Link href="/guide/cases">運用実績</Link>
         <Link href="/guide/customization">設定・カスタマイズ</Link>
         <Link href="/components/booth">コンポーネント一覧</Link>
         <a href="https://github.com/rsu-Suba/FesTime" target="_blank" rel="noopener noreferrer">

@@ -17,6 +17,7 @@ export const SIDEBAR_SECTIONS: SidebarCategory[] = [
     items: [
       { slug: "/guide/getting-started", label: "はじめる", desc: "クイックスタート" },
       { slug: "/guide/faq", label: "FAQ", desc: "導入時の疑問 / トラブル" },
+      { slug: "/guide/cases", label: "運用実績", desc: "導入事例 / イベント実績" },
     ],
   },
   {
